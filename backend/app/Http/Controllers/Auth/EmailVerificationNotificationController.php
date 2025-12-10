@@ -9,10 +9,6 @@ use Illuminate\Http\Request;
 
 class EmailVerificationNotificationController extends Controller
 {
-    /**
-     * Send a new email verification notification.
-     * Can be used by authenticated users or by providing an email address.
-     */
     public function store(Request $request): JsonResponse
     {
         // If user is authenticated

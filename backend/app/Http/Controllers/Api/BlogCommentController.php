@@ -50,9 +50,6 @@ class BlogCommentController extends Controller
         return response()->json($comments);
     }
 
-    /**
-     * Get authenticated user ID from Bearer token without requiring auth middleware
-     */
     private function getAuthenticatedUserId(Request $request)
     {
         // First check if already authenticated via middleware
@@ -74,9 +71,6 @@ class BlogCommentController extends Controller
         return $token->tokenable_id;
     }
 
-    /**
-     * Transform comment to include user_liked attribute
-     */
     private function transformComment($comment, $userId)
     {
         $commentArray = $comment->toArray();

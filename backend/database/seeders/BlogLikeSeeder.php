@@ -33,14 +33,13 @@ class BlogLikeSeeder extends Seeder
             foreach ($likedUsers as $user) {
                 BlogLike::create([
                     'user_id' => $user->id,
-                    'likeable_type' => Blog::class,
-                    'likeable_id' => $blog->id,
-                    'reaction_type' => fake()->randomElement(['like', 'like', 'like', 'love', 'insightful', 'fire']), // Mostly "like"
+                    'blog_id' => $blog->id,
                 ]);
             }
         }
 
-        // Create likes for comments
+        // Note: Comment likes are handled by BlogCommentLike model now
+        // Create likes for comments using BlogCommentLike instead
         if ($comments->isNotEmpty()) {
             foreach ($comments as $comment) {
                 // Some comments get likes (60% chance)
@@ -54,17 +53,11 @@ class BlogLikeSeeder extends Seeder
                             continue;
                         }
                         
-                        BlogLike::create([
+                        \App\Models\BlogCommentLike::create([
                             'user_id' => $user->id,
-                            'likeable_type' => BlogComment::class,
-                            'likeable_id' => $comment->id,
-                            'reaction_type' => fake()->randomElement(['like', 'like', 'insightful']),
+                            'blog_comment_id' => $comment->id,
                         ]);
                     }
-                    
-                    // Update comment likes count
-                    $actualLikes = $comment->likes()->count();
-                    $comment->update(['likes_count' => $actualLikes]);
                 }
             }
         }

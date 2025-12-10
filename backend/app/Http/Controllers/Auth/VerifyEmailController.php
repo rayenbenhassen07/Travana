@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\URL;
 
 class VerifyEmailController extends Controller
 {
-    /**
-     * Mark the authenticated user's email address as verified.
-     */
     public function __invoke(Request $request, $id, $hash)
     {
         // Find the user
