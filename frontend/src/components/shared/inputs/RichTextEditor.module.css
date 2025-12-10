@@ -1,0 +1,40 @@
+/* RichTextEditor Styles - Fixes overflow issue with large content */
+
+.editorWrapper :global(.ql-container) {
+  overflow-y: auto !important;
+  font-family: inherit;
+}
+
+.editorWrapper :global(.ql-editor) {
+  min-height: 200px;
+  max-height: none !important;
+  overflow-y: visible !important;
+}
+
+/* Ensure toolbar stays visible */
+.editorWrapper :global(.ql-toolbar) {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Custom scrollbar for better UX */
+.editorWrapper :global(.ql-container)::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editorWrapper :global(.ql-container)::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.editorWrapper :global(.ql-container)::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.editorWrapper :global(.ql-container)::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

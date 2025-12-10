@@ -1,0 +1,262 @@
+@import "tailwindcss";
+
+@theme {
+  /* ============================================
+     BRAND COLORS - Orange Primary + Neutral Secondary
+     ============================================ */
+
+  /* Primary Orange - Main Brand Color */
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316; /* Main Orange */
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  --color-primary-800: #9a3412;
+  --color-primary-900: #7c2d12;
+  --color-primary-950: #431407;
+
+  /* Secondary = Neutral Gray (Replaces Dark Blue) */
+  --color-secondary-50: #fafafa;
+  --color-secondary-100: #f5f5f5;
+  --color-secondary-200: #e5e5e5;
+  --color-secondary-300: #d4d4d4;
+  --color-secondary-400: #a3a3a3;
+  --color-secondary-500: #737373; /* Main Secondary */
+  --color-secondary-600: #525252;
+  --color-secondary-700: #404040;
+  --color-secondary-800: #262626;
+  --color-secondary-900: #171717;
+  --color-secondary-950: #0a0a0a;
+
+  /* Accent Colors */
+  --color-accent-coral: #ff6b6b;
+  --color-accent-amber: #fbbf24;
+  --color-accent-teal: #14b8a6;
+  --color-accent-sky: #38bdf8;
+
+  /* Neutrals (unchanged) */
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #e7e5e4;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  --color-neutral-950: #0a0a0a;
+
+  /* Semantic */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+  --font-family-display: "Poppins", "Inter", ui-sans-serif, system-ui;
+  --font-family-body: "Inter", ui-sans-serif, system-ui;
+  --font-family-accent: "Montserrat", ui-sans-serif;
+  --font-family-mono: "Roboto Mono", ui-monospace;
+
+  /* ============================================
+     SPACING & SHADOWS
+     ============================================ */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+/* globals.css or your stylesheet */
+.bg-image {
+  background-image: url("https://images.pexels.com/photos/17866023/pexels-photo-17866023/free-photo-of-mer-paysage-nature-vacances.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=5");
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.7);
+}
+
+/*--------swiper-----------*/
+.swiper-container .swiper-nav-button {
+  opacity: 0; /* Hide buttons by default */
+  transition: opacity 0.3s ease; /* Smooth fade effect */
+}
+
+.swiper-container:hover .swiper-nav-button {
+  opacity: 1; /* Show buttons on hover */
+}
+
+/*--------date-range-picker-----------*/
+.rdrDateRangePickerWrapper {
+  font-family: var(--font-inter);
+}
+
+.rdrMonthAndYearWrapper {
+  background-color: #f97316 !important;
+}
+
+.rdrMonthPicker select,
+.rdrYearPicker select {
+  color: white !important;
+  font-weight: 600;
+}
+
+.rdrNextPrevButton {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.rdrNextPrevButton:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span {
+  color: white !important;
+}
+
+.rdrDayToday .rdrDayNumber span:after {
+  background: #f97316 !important;
+}
+
+.rdrDayHovered .rdrDayNumber:after {
+  border-color: #f97316 !important;
+}
+
+/*--------animations-----------*/
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 1s ease-out;
+}
+
+/* Swiper Custom Styles */
+.swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: white !important;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background: white !important;
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Listing Card Swiper Specific */
+.listing-swiper .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  background: white !important;
+  opacity: 0.7;
+}
+
+.listing-swiper .swiper-pagination-bullet-active {
+  background: white !important;
+  opacity: 1;
+}
+
+/* Quill Editor Custom Styles */
+.ql-container {
+  font-family: var(--font-family-body);
+  font-size: 16px;
+}
+
+.ql-editor {
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.ql-editor.ql-blank::before {
+  font-style: normal;
+  color: #9ca3af;
+}
+
+.ql-toolbar {
+  background: #f9fafb;
+  border-color: #e5e7eb !important;
+}
+
+.ql-toolbar button:hover,
+.ql-toolbar button:focus {
+  color: #f97316 !important;
+}
+
+.ql-toolbar button.ql-active,
+.ql-toolbar .ql-picker-label.ql-active,
+.ql-toolbar .ql-picker-item.ql-selected {
+  color: #f97316 !important;
+}
+
+.ql-toolbar .ql-stroke {
+  stroke: #525252;
+}
+
+.ql-toolbar button:hover .ql-stroke,
+.ql-toolbar button:focus .ql-stroke,
+.ql-toolbar button.ql-active .ql-stroke {
+  stroke: #f97316 !important;
+}
+
+.ql-toolbar .ql-fill {
+  fill: #525252;
+}
+
+.ql-toolbar button:hover .ql-fill,
+.ql-toolbar button:focus .ql-fill,
+.ql-toolbar button.ql-active .ql-fill {
+  fill: #f97316 !important;
+}
+
+.ql-toolbar .ql-picker-label {
+  color: #525252;
+}
+
+.ql-toolbar .ql-picker-label:hover {
+  color: #f97316 !important;
+}
+
+/* Quill Snow Theme Override */
+.ql-snow .ql-picker-options {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}

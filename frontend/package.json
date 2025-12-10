@@ -1,0 +1,49 @@
+{
+  "name": "front",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@fullcalendar/core": "^6.1.17",
+    "@fullcalendar/daygrid": "^6.1.17",
+    "@fullcalendar/interaction": "^6.1.17",
+    "@fullcalendar/react": "^6.1.17",
+    "@fullcalendar/timegrid": "^6.1.17",
+    "@headlessui/react": "^2.2.0",
+    "@tiptap/extension-link": "^3.4.1",
+    "@tiptap/extension-underline": "^3.4.1",
+    "@tiptap/react": "^3.4.1",
+    "@tiptap/starter-kit": "^3.4.1",
+    "axios": "^1.8.3",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "framer-motion": "^12.7.4",
+    "moment": "^2.30.1",
+    "next": "15.2.2",
+    "react": "^19.0.0",
+    "react-big-calendar": "^1.19.4",
+    "react-date-range": "^2.0.1",
+    "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
+    "react-hook-form": "^7.54.2",
+    "react-icons": "^5.5.0",
+    "react-quill-new": "^3.6.0",
+    "react-select": "^5.10.1",
+    "react-tooltip": "^5.28.1",
+    "sonner": "^2.0.1",
+    "swiper": "^11.2.6",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.2",
+    "tailwindcss": "^4"
+  }
+}

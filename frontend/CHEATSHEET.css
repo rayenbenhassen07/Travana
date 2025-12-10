@@ -1,0 +1,265 @@
+/* ============================================
+   TAILWIND CLASS CHEAT SHEET
+   Quick reference for your design system
+   ============================================ */
+
+/* ============================================
+   COLORS
+   ============================================ */
+
+/* Primary Orange - Main Brand */
+bg-primary-50        /* Lightest background */
+bg-primary-100       /* Light accent */
+bg-primary-500       /* 🌟 MAIN ORANGE - Use for CTAs */
+bg-primary-600       /* Hover state */
+bg-primary-700       /* Active/pressed */
+
+text-primary-500     /* Orange text */
+border-primary-500   /* Orange border */
+
+/* Secondary Dark Blue - Professional */
+bg-secondary-500     /* Bright blue */
+bg-secondary-800     /* 🌟 DEEP NAVY - Use for headers */
+bg-secondary-950     /* Darkest */
+
+text-secondary-950   /* Dark blue text */
+text-secondary-800   /* Navy text */
+
+/* Accent Colors */
+bg-accent-coral      /* #ff6b6b - Special offers */
+bg-accent-amber      /* #fbbf24 - Featured, ratings */
+bg-accent-teal       /* #14b8a6 - Available, success */
+bg-accent-sky        /* #38bdf8 - Links, info */
+
+/* Neutrals */
+bg-neutral-50        /* Page background */
+bg-neutral-100       /* Card background */
+bg-neutral-200       /* Borders */
+text-neutral-600     /* Secondary text */
+text-neutral-900     /* Primary text */
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+/* Font Families */
+font-[family-name:var(--font-inter)]        /* Body text */
+font-[family-name:var(--font-poppins)]      /* Headings */
+font-[family-name:var(--font-montserrat)]   /* Prices */
+font-[family-name:var(--font-roboto-mono)]  /* Codes */
+
+/* Font Sizes */
+text-xs      /* 12px - Small labels */
+text-sm      /* 14px - Secondary text */
+text-base    /* 16px - Body text */
+text-lg      /* 18px - Subheadings */
+text-xl      /* 20px - Card titles */
+text-2xl     /* 24px - Section headings */
+text-3xl     /* 30px - Page titles */
+text-4xl     /* 36px - Hero text */
+text-5xl     /* 48px - Large hero */
+
+/* Font Weights */
+font-normal      /* 400 */
+font-medium      /* 500 */
+font-semibold    /* 600 */
+font-bold        /* 700 */
+
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
+
+/* Primary Button (Orange) */
+bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200
+
+/* Secondary Button (Dark Blue) */
+bg-secondary-800 hover:bg-secondary-900 text-white font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-200
+
+/* Outline Button */
+border-2 border-primary-500 text-primary-500 hover:bg-primary-50 font-medium px-6 py-3 rounded-lg transition-all duration-200
+
+/* Ghost Button */
+text-primary-500 hover:bg-primary-50 font-medium px-6 py-3 rounded-lg transition-all duration-200
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+
+/* Basic Card */
+bg-white rounded-xl shadow-md p-6
+
+/* Hover Card */
+bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6
+
+/* Card with Header */
+bg-white rounded-xl shadow-md overflow-hidden
+/* Then add header: */
+bg-secondary-800 text-white p-4
+
+/* ============================================
+   COMMON PATTERNS
+   ============================================ */
+
+/* Navigation Bar */
+bg-secondary-800 text-white shadow-lg
+
+/* Hero Section */
+bg-gradient-to-br from-secondary-800 via-secondary-900 to-secondary-950 text-white py-24
+
+/* Page Container */
+container mx-auto px-4 py-12
+
+/* Section Heading */
+text-3xl font-[family-name:var(--font-poppins)] font-bold text-secondary-950 mb-6
+
+/* Body Paragraph */
+text-base font-[family-name:var(--font-inter)] text-neutral-600
+
+/* Price Display */
+text-2xl font-[family-name:var(--font-montserrat)] font-bold text-primary-500
+
+/* Badge */
+bg-accent-amber text-secondary-950 px-3 py-1 rounded-full text-sm font-semibold
+
+/* Input Field */
+w-full px-4 py-3 border-2 border-neutral-200 focus:border-primary-500 focus:outline-none rounded-lg
+
+/* ============================================
+   SPACING
+   ============================================ */
+
+/* Padding */
+p-2   /* 8px */
+p-4   /* 16px */
+p-6   /* 24px */
+p-8   /* 32px */
+p-12  /* 48px */
+
+/* Margin */
+m-2   /* 8px */
+m-4   /* 16px */
+m-6   /* 24px */
+mb-4  /* margin-bottom: 16px */
+mt-8  /* margin-top: 32px */
+
+/* Gap (for flex/grid) */
+gap-2   /* 8px */
+gap-4   /* 16px */
+gap-6   /* 24px */
+
+/* ============================================
+   BORDER RADIUS
+   ============================================ */
+
+rounded-sm      /* 6px */
+rounded-md      /* 8px */
+rounded-lg      /* 12px */
+rounded-xl      /* 16px */
+rounded-2xl     /* 24px */
+rounded-full    /* Circle/pill */
+
+/* ============================================
+   SHADOWS
+   ============================================ */
+
+shadow-sm    /* Subtle */
+shadow-md    /* Cards */
+shadow-lg    /* Hover states */
+shadow-xl    /* Modals */
+shadow-2xl   /* Hero elements */
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Mobile first - add prefixes for larger screens */
+md:    /* Tablet (768px+) */
+lg:    /* Desktop (1024px+) */
+xl:    /* Large desktop (1280px+) */
+
+/* Example: */
+grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+text-2xl md:text-4xl lg:text-5xl
+
+/* ============================================
+   TRANSITIONS
+   ============================================ */
+
+transition-all duration-200        /* All properties */
+transition-colors duration-200     /* Colors only */
+transition-shadow duration-300     /* Shadow only */
+transition-transform duration-300  /* Transform only */
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+
+hover:shadow-xl           /* Shadow on hover */
+hover:scale-105           /* Grow on hover */
+hover:bg-primary-600      /* Color change */
+hover:-translate-y-1      /* Lift up */
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+/* Flex */
+flex items-center justify-between
+flex flex-col gap-4
+
+/* Grid */
+grid grid-cols-1 md:grid-cols-3 gap-6
+grid grid-cols-2 gap-4
+
+/* Container */
+container mx-auto px-4
+max-w-7xl mx-auto
+
+/* ============================================
+   QUICK COPY-PASTE COMPONENTS
+   ============================================ */
+
+/* PRIMARY BUTTON */
+<button className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg shadow-md">
+  Book Now
+</button>
+
+/* NAVIGATION */
+<nav className="bg-secondary-800 text-white shadow-lg">
+  <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+    <span className="text-2xl font-[family-name:var(--font-poppins)] font-bold">
+      <span className="text-primary-500">Naseam</span>
+    </span>
+  </div>
+</nav>
+
+/* CARD */
+<div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6">
+  <h3 className="text-xl font-[family-name:var(--font-poppins)] font-semibold text-secondary-950 mb-2">
+    Title
+  </h3>
+  <p className="text-neutral-600 mb-4">Description</p>
+</div>
+
+/* HERO SECTION */
+<section className="bg-gradient-to-br from-secondary-800 to-secondary-950 text-white py-24">
+  <div className="container mx-auto px-4 text-center">
+    <h1 className="text-5xl font-[family-name:var(--font-poppins)] font-bold mb-6">
+      Your <span className="text-primary-500">Title</span>
+    </h1>
+  </div>
+</section>
+
+/* PRICE TAG */
+<span className="text-2xl font-[family-name:var(--font-montserrat)] font-bold text-primary-500">
+  $299<span className="text-sm text-neutral-600">/night</span>
+</span>
+
+/* BADGE */
+<span className="bg-accent-amber text-secondary-950 px-3 py-1 rounded-full text-sm font-semibold">
+  ⭐ Featured
+</span>
+
+/* ============================================
+   END OF CHEAT SHEET
+   ============================================ */
