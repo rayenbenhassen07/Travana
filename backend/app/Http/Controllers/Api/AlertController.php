@@ -10,17 +10,6 @@ use Illuminate\Validation\Rule;
 
 class AlertController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/alerts",
-     *     summary="Get all alerts",
-     *     description="Retrieve a list of all alerts with listings count",
-     *     operationId="getAlerts",
-     *     tags={"Alerts"},
-     *     @OA\Response(response=200, description="List of alerts", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Alert"))),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function index()
     {
         try {
@@ -31,29 +20,6 @@ class AlertController extends Controller
         }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/alerts",
-     *     summary="Create a new alert",
-     *     operationId="createAlert",
-     *     tags={"Alerts"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 required={"title"},
-     *                 @OA\Property(property="title", type="string", maxLength=255, example="No Smoking"),
-     *                 @OA\Property(property="description", type="string", nullable=true),
-     *                 @OA\Property(property="logo", type="string", format="binary", description="Logo image (max 2MB)")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Alert created", @OA\JsonContent(ref="#/components/schemas/Alert")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function store(Request $request)
     {
         try {
@@ -90,18 +56,6 @@ class AlertController extends Controller
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/alerts/{id}",
-     *     summary="Get a specific alert",
-     *     operationId="getAlert",
-     *     tags={"Alerts"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Alert details", @OA\JsonContent(ref="#/components/schemas/Alert")),
-     *     @OA\Response(response=404, description="Alert not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function show($id)
     {
         try {
@@ -114,29 +68,6 @@ class AlertController extends Controller
         }
     }
 
-    /**
-     * @OA\Put(
-     *     path="/alerts/{id}",
-     *     summary="Update an alert",
-     *     operationId="updateAlert",
-     *     tags={"Alerts"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 @OA\Property(property="title", type="string", maxLength=255),
-     *                 @OA\Property(property="description", type="string", nullable=true),
-     *                 @OA\Property(property="logo", type="string", format="binary")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Alert updated", @OA\JsonContent(ref="#/components/schemas/Alert")),
-     *     @OA\Response(response=404, description="Alert not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -193,19 +124,6 @@ class AlertController extends Controller
         }
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/alerts/{id}",
-     *     summary="Delete an alert",
-     *     operationId="deleteAlert",
-     *     tags={"Alerts"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Alert deleted", @OA\JsonContent(@OA\Property(property="message", type="string"))),
-     *     @OA\Response(response=404, description="Alert not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=409, description="Cannot delete - has listings", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function destroy($id)
     {
         try {

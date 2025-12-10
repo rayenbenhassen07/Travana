@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Reservation;
+use App\Models\ListingReservation;
 use App\Models\User;
 use App\Models\Listing;
+use App\Models\Currency;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 
@@ -17,50 +18,38 @@ class ReservationSeeder extends Seeder
     {
         $users = User::where('type', 'user')->get();
         $listings = Listing::all();
+        $currency = Currency::first(); // Get default currency
 
         // Create past reservations
         for ($i = 0; $i < 20; $i++) {
             $listing = $listings->random();
             $user = $users->random();
-            $guestCount = rand(1, $listing->guest_count);
             
             $startDate = Carbon::now()->subDays(rand(30, 180));
             $duration = rand(2, 14); // 2 to 14 days
             $endDate = $startDate->copy()->addDays($duration);
             
-            $totalPrice = $listing->price * $duration;
-            $cleaningFee = round($listing->price * 0.15, 2);
-            $serviceFee = round($totalPrice * 0.10, 2);
-            $taxes = round($totalPrice * 0.08, 2);
+            $perNight = $listing->price;
+            $subtotal = $perNight * $duration;
+            $serviceFee = round($subtotal * 0.10, 2);
+            $total = $subtotal + $serviceFee;
             
-            Reservation::create([
+            ListingReservation::create([
                 'user_id' => $user->id,
                 'listing_id' => $listing->id,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'prices' => [
-                    'nightly_rate' => $listing->price,
-                    'nights' => $duration,
-                    'subtotal' => $totalPrice,
-                    'cleaning_fee' => $cleaningFee,
-                    'service_fee' => $serviceFee,
-                    'taxes' => $taxes,
-                    'total' => $totalPrice + $cleaningFee + $serviceFee + $taxes,
-                ],
+                'nights' => $duration,
+                'per_night' => $perNight,
+                'subtotal' => $subtotal,
+                'service_fee' => $serviceFee,
+                'total' => $total,
+                'currency_id' => $currency?->id,
                 'is_blocked' => false,
-                'guest_details' => [
-                    'first_name' => fake()->firstName(),
-                    'last_name' => fake()->lastName(),
-                    'email' => $user->email,
-                    'phone' => fake()->phoneNumber(),
-                ],
-                'contact' => [
-                    'email' => $user->email,
-                    'phone' => fake()->phoneNumber(),
-                    'preferred_contact' => fake()->randomElement(['email', 'phone', 'both']),
-                ],
-                'guest_count' => $guestCount,
-                'details' => fake()->optional()->paragraph(),
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => fake()->phoneNumber(),
+                'sex' => fake()->randomElement(['male', 'female']),
                 'client_type' => fake()->randomElement(['family', 'group', 'one']),
             ]);
         }
@@ -69,45 +58,32 @@ class ReservationSeeder extends Seeder
         for ($i = 0; $i < 5; $i++) {
             $listing = $listings->random();
             $user = $users->random();
-            $guestCount = rand(1, $listing->guest_count);
             
             $startDate = Carbon::now()->subDays(rand(1, 5));
             $duration = rand(5, 14);
             $endDate = $startDate->copy()->addDays($duration);
             
-            $totalPrice = $listing->price * $duration;
-            $cleaningFee = round($listing->price * 0.15, 2);
-            $serviceFee = round($totalPrice * 0.10, 2);
-            $taxes = round($totalPrice * 0.08, 2);
+            $perNight = $listing->price;
+            $subtotal = $perNight * $duration;
+            $serviceFee = round($subtotal * 0.10, 2);
+            $total = $subtotal + $serviceFee;
             
-            Reservation::create([
+            ListingReservation::create([
                 'user_id' => $user->id,
                 'listing_id' => $listing->id,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'prices' => [
-                    'nightly_rate' => $listing->price,
-                    'nights' => $duration,
-                    'subtotal' => $totalPrice,
-                    'cleaning_fee' => $cleaningFee,
-                    'service_fee' => $serviceFee,
-                    'taxes' => $taxes,
-                    'total' => $totalPrice + $cleaningFee + $serviceFee + $taxes,
-                ],
+                'nights' => $duration,
+                'per_night' => $perNight,
+                'subtotal' => $subtotal,
+                'service_fee' => $serviceFee,
+                'total' => $total,
+                'currency_id' => $currency?->id,
                 'is_blocked' => false,
-                'guest_details' => [
-                    'first_name' => fake()->firstName(),
-                    'last_name' => fake()->lastName(),
-                    'email' => $user->email,
-                    'phone' => fake()->phoneNumber(),
-                ],
-                'contact' => [
-                    'email' => $user->email,
-                    'phone' => fake()->phoneNumber(),
-                    'preferred_contact' => fake()->randomElement(['email', 'phone', 'both']),
-                ],
-                'guest_count' => $guestCount,
-                'details' => fake()->optional()->paragraph(),
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => fake()->phoneNumber(),
+                'sex' => fake()->randomElement(['male', 'female']),
                 'client_type' => fake()->randomElement(['family', 'group', 'one']),
             ]);
         }
@@ -116,45 +92,32 @@ class ReservationSeeder extends Seeder
         for ($i = 0; $i < 15; $i++) {
             $listing = $listings->random();
             $user = $users->random();
-            $guestCount = rand(1, $listing->guest_count);
             
             $startDate = Carbon::now()->addDays(rand(1, 90));
             $duration = rand(3, 21);
             $endDate = $startDate->copy()->addDays($duration);
             
-            $totalPrice = $listing->price * $duration;
-            $cleaningFee = round($listing->price * 0.15, 2);
-            $serviceFee = round($totalPrice * 0.10, 2);
-            $taxes = round($totalPrice * 0.08, 2);
+            $perNight = $listing->price;
+            $subtotal = $perNight * $duration;
+            $serviceFee = round($subtotal * 0.10, 2);
+            $total = $subtotal + $serviceFee;
             
-            Reservation::create([
+            ListingReservation::create([
                 'user_id' => $user->id,
                 'listing_id' => $listing->id,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'prices' => [
-                    'nightly_rate' => $listing->price,
-                    'nights' => $duration,
-                    'subtotal' => $totalPrice,
-                    'cleaning_fee' => $cleaningFee,
-                    'service_fee' => $serviceFee,
-                    'taxes' => $taxes,
-                    'total' => $totalPrice + $cleaningFee + $serviceFee + $taxes,
-                ],
+                'nights' => $duration,
+                'per_night' => $perNight,
+                'subtotal' => $subtotal,
+                'service_fee' => $serviceFee,
+                'total' => $total,
+                'currency_id' => $currency?->id,
                 'is_blocked' => false,
-                'guest_details' => [
-                    'first_name' => fake()->firstName(),
-                    'last_name' => fake()->lastName(),
-                    'email' => $user->email,
-                    'phone' => fake()->phoneNumber(),
-                ],
-                'contact' => [
-                    'email' => $user->email,
-                    'phone' => fake()->phoneNumber(),
-                    'preferred_contact' => fake()->randomElement(['email', 'phone', 'both']),
-                ],
-                'guest_count' => $guestCount,
-                'details' => fake()->optional()->paragraph(),
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => fake()->phoneNumber(),
+                'sex' => fake()->randomElement(['male', 'female']),
                 'client_type' => fake()->randomElement(['family', 'group', 'one']),
             ]);
         }
@@ -167,23 +130,22 @@ class ReservationSeeder extends Seeder
             $duration = rand(3, 10);
             $endDate = $startDate->copy()->addDays($duration);
             
-            Reservation::create([
-                'user_id' => null, // No user for blocked dates
+            ListingReservation::create([
+                'user_id' => null,
                 'listing_id' => $listing->id,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'prices' => null,
+                'nights' => $duration,
+                'per_night' => 0,
+                'subtotal' => 0,
+                'service_fee' => 0,
+                'total' => 0,
+                'currency_id' => $currency?->id,
                 'is_blocked' => true,
-                'guest_details' => null,
-                'contact' => null,
-                'guest_count' => 0,
-                'details' => fake()->randomElement([
-                    'Property maintenance',
-                    'Owner personal use',
-                    'Renovation work',
-                    'Deep cleaning',
-                    'Property inspection',
-                ]),
+                'name' => null,
+                'email' => null,
+                'phone' => null,
+                'sex' => null,
                 'client_type' => null,
             ]);
         }

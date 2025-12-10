@@ -10,17 +10,6 @@ use Illuminate\Validation\Rule;
 
 class FacilityController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/facilities",
-     *     summary="Get all facilities",
-     *     description="Retrieve a list of all facilities with listings count",
-     *     operationId="getFacilities",
-     *     tags={"Facilities"},
-     *     @OA\Response(response=200, description="List of facilities", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Facility"))),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function index()
     {
         try {
@@ -31,29 +20,6 @@ class FacilityController extends Controller
         }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/facilities",
-     *     summary="Create a new facility",
-     *     operationId="createFacility",
-     *     tags={"Facilities"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 required={"title"},
-     *                 @OA\Property(property="title", type="string", maxLength=255, example="WiFi"),
-     *                 @OA\Property(property="description", type="string", nullable=true),
-     *                 @OA\Property(property="logo", type="string", format="binary", description="Logo image (max 2MB)")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Facility created", @OA\JsonContent(ref="#/components/schemas/Facility")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function store(Request $request)
     {
         try {
@@ -90,18 +56,6 @@ class FacilityController extends Controller
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/facilities/{id}",
-     *     summary="Get a specific facility",
-     *     operationId="getFacility",
-     *     tags={"Facilities"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Facility details", @OA\JsonContent(ref="#/components/schemas/Facility")),
-     *     @OA\Response(response=404, description="Facility not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function show($id)
     {
         try {
@@ -114,29 +68,6 @@ class FacilityController extends Controller
         }
     }
 
-    /**
-     * @OA\Put(
-     *     path="/facilities/{id}",
-     *     summary="Update a facility",
-     *     operationId="updateFacility",
-     *     tags={"Facilities"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 @OA\Property(property="title", type="string", maxLength=255),
-     *                 @OA\Property(property="description", type="string", nullable=true),
-     *                 @OA\Property(property="logo", type="string", format="binary")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Facility updated", @OA\JsonContent(ref="#/components/schemas/Facility")),
-     *     @OA\Response(response=404, description="Facility not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -193,19 +124,6 @@ class FacilityController extends Controller
         }
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/facilities/{id}",
-     *     summary="Delete a facility",
-     *     operationId="deleteFacility",
-     *     tags={"Facilities"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Facility deleted", @OA\JsonContent(@OA\Property(property="message", type="string"))),
-     *     @OA\Response(response=404, description="Facility not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=409, description="Cannot delete - has listings", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function destroy($id)
     {
         try {

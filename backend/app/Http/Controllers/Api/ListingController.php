@@ -10,41 +10,6 @@ use Illuminate\Validation\Rule;
 
 class ListingController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/listings",
-     *     summary="Get all listings",
-     *     description="Retrieve a paginated list of listings with filters",
-     *     operationId="getListings",
-     *     tags={"Listings"},
-     *     @OA\Parameter(name="search", in="query", description="Search in title, description, address", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="city_id", in="query", description="Filter by city ID", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="city", in="query", description="Filter by city name", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="category_id", in="query", description="Filter by category", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="user_id", in="query", description="Filter by owner", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="min_price", in="query", description="Minimum price", @OA\Schema(type="number")),
-     *     @OA\Parameter(name="max_price", in="query", description="Maximum price", @OA\Schema(type="number")),
-     *     @OA\Parameter(name="guests", in="query", description="Minimum guest capacity", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="page", in="query", description="Page number", @OA\Schema(type="integer", default=1)),
-     *     @OA\Parameter(name="limit", in="query", description="Items per page", @OA\Schema(type="integer", default=10)),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Paginated list of listings",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Listing")),
-     *             @OA\Property(
-     *                 property="pagination",
-     *                 type="object",
-     *                 @OA\Property(property="total", type="integer"),
-     *                 @OA\Property(property="currentPage", type="integer"),
-     *                 @OA\Property(property="totalPages", type="integer"),
-     *                 @OA\Property(property="perPage", type="integer")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function index(Request $request)
     {
         try {
@@ -118,48 +83,6 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/listings",
-     *     summary="Create a new listing",
-     *     description="Create a new property listing with images, facilities, and alerts",
-     *     operationId="createListing",
-     *     tags={"Listings"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 required={"title", "category_id", "city_id", "user_id", "price"},
-     *                 @OA\Property(property="title", type="string", maxLength=255, example="Beautiful Beach House"),
-     *                 @OA\Property(property="short_description", type="string", maxLength=500),
-     *                 @OA\Property(property="long_description", type="string"),
-     *                 @OA\Property(property="images[]", type="array", @OA\Items(type="string", format="binary"), description="Property images (max 5MB each)"),
-     *                 @OA\Property(property="category_id", type="integer", example=1),
-     *                 @OA\Property(property="room_count", type="integer", minimum=1),
-     *                 @OA\Property(property="bathroom_count", type="integer", minimum=1),
-     *                 @OA\Property(property="guest_count", type="integer", minimum=1),
-     *                 @OA\Property(property="bed_count", type="integer", minimum=1),
-     *                 @OA\Property(property="city_id", type="integer", example=1),
-     *                 @OA\Property(property="adresse", type="string"),
-     *                 @OA\Property(property="user_id", type="integer", example=1),
-     *                 @OA\Property(property="price", type="number", minimum=0, example=150.00),
-     *                 @OA\Property(property="lat", type="number", minimum=-90, maximum=90),
-     *                 @OA\Property(property="long", type="number", minimum=-180, maximum=180),
-     *                 @OA\Property(property="facilities[]", type="array", @OA\Items(type="integer"), description="Array of facility IDs"),
-     *                 @OA\Property(property="alerts[]", type="array", @OA\Items(type="integer"), description="Array of alert IDs")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Listing created successfully",
-     *         @OA\JsonContent(ref="#/components/schemas/Listing")
-     *     ),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function store(Request $request)
     {
         try {
@@ -220,29 +143,6 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/listings/{id}",
-     *     summary="Get a specific listing",
-     *     description="Retrieve a single listing with all related data",
-     *     operationId="getListing",
-     *     tags={"Listings"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="Listing ID",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Listing details",
-     *         @OA\JsonContent(ref="#/components/schemas/Listing")
-     *     ),
-     *     @OA\Response(response=404, description="Listing not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function show($id)
     {
         try {
@@ -255,45 +155,6 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * @OA\Put(
-     *     path="/listings/{id}",
-     *     summary="Update a listing",
-     *     description="Update an existing listing (also supports POST with _method for file uploads)",
-     *     operationId="updateListing",
-     *     tags={"Listings"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="multipart/form-data",
-     *             @OA\Schema(
-     *                 @OA\Property(property="title", type="string", maxLength=255),
-     *                 @OA\Property(property="short_description", type="string"),
-     *                 @OA\Property(property="long_description", type="string"),
-     *                 @OA\Property(property="images[]", type="array", @OA\Items(type="string", format="binary")),
-     *                 @OA\Property(property="existing_images[]", type="array", @OA\Items(type="string"), description="Existing image paths to keep"),
-     *                 @OA\Property(property="category_id", type="integer"),
-     *                 @OA\Property(property="room_count", type="integer"),
-     *                 @OA\Property(property="bathroom_count", type="integer"),
-     *                 @OA\Property(property="guest_count", type="integer"),
-     *                 @OA\Property(property="bed_count", type="integer"),
-     *                 @OA\Property(property="city_id", type="integer"),
-     *                 @OA\Property(property="adresse", type="string"),
-     *                 @OA\Property(property="user_id", type="integer"),
-     *                 @OA\Property(property="price", type="number"),
-     *                 @OA\Property(property="lat", type="number"),
-     *                 @OA\Property(property="long", type="number"),
-     *                 @OA\Property(property="facilities[]", type="array", @OA\Items(type="integer")),
-     *                 @OA\Property(property="alerts[]", type="array", @OA\Items(type="integer"))
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Listing updated", @OA\JsonContent(ref="#/components/schemas/Listing")),
-     *     @OA\Response(response=404, description="Listing not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -369,24 +230,6 @@ class ListingController extends Controller
         }
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/listings/{id}",
-     *     summary="Delete a listing",
-     *     description="Delete a listing (only if no reservations exist)",
-     *     operationId="deleteListing",
-     *     tags={"Listings"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Listing deleted successfully",
-     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Listing deleted successfully"))
-     *     ),
-     *     @OA\Response(response=404, description="Listing not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=409, description="Cannot delete - has reservations", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function destroy($id)
     {
         try {

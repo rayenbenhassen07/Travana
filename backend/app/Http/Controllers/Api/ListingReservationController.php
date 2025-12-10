@@ -11,25 +11,6 @@ use Illuminate\Support\Facades\Mail;
 
 class ListingReservationController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/listing-reservations",
-     *     summary="Get all listing reservations",
-     *     description="Retrieve a list of all reservations with optional date range filtering",
-     *     operationId="getListingReservations",
-     *     tags={"Listing Reservations"},
-     *     @OA\Parameter(name="listing_id", in="query", description="Filter by listing ID", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="start_date", in="query", description="Start date for filtering (YYYY-MM-DD)", @OA\Schema(type="string", format="date")),
-     *     @OA\Parameter(name="end_date", in="query", description="End date for filtering (YYYY-MM-DD)", @OA\Schema(type="string", format="date")),
-     *     @OA\Parameter(name="is_blocked", in="query", description="Filter by blocked status", @OA\Schema(type="boolean")),
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of reservations",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ListingReservation"))
-     *     ),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function index(Request $request)
     {
         try {
@@ -75,40 +56,6 @@ class ListingReservationController extends Controller
         }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/listing-reservations",
-     *     summary="Create a new listing reservation",
-     *     description="Create a new booking reservation with overlap checking. When is_blocked is true, only listing_id, user_id, start_date, end_date, and nights are required.",
-     *     operationId="createListingReservation",
-     *     tags={"Listing Reservations"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"listing_id", "user_id", "start_date", "end_date", "nights"},
-     *             @OA\Property(property="listing_id", type="integer", example=1),
-     *             @OA\Property(property="user_id", type="integer", example=1),
-     *             @OA\Property(property="start_date", type="string", format="date", example="2025-12-01"),
-     *             @OA\Property(property="end_date", type="string", format="date", example="2025-12-07"),
-     *             @OA\Property(property="is_blocked", type="boolean", example=false, description="If true, only listing_id, user_id, start_date, end_date, nights are required"),
-     *             @OA\Property(property="name", type="string", example="John Doe", description="Required when is_blocked is false"),
-     *             @OA\Property(property="phone", type="string", example="+1234567890", description="Required when is_blocked is false"),
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com", description="Required when is_blocked is false"),
-     *             @OA\Property(property="sex", type="string", enum={"male", "female"}, example="male", description="Required when is_blocked is false"),
-     *             @OA\Property(property="client_type", type="string", enum={"family", "group", "one"}, example="family", description="Required when is_blocked is false"),
-     *             @OA\Property(property="nights", type="integer", example=6),
-     *             @OA\Property(property="total", type="number", format="float", example=750.00, description="Required when is_blocked is false"),
-     *             @OA\Property(property="subtotal", type="number", format="float", example=700.00, description="Required when is_blocked is false"),
-     *             @OA\Property(property="per_night", type="number", format="float", example=116.67, description="Required when is_blocked is false"),
-     *             @OA\Property(property="service_fee", type="number", format="float", example=50.00, description="Required when is_blocked is false"),
-     *             @OA\Property(property="currency_id", type="integer", example=1, description="Required when is_blocked is false")
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Reservation created", @OA\JsonContent(ref="#/components/schemas/ListingReservation")),
-     *     @OA\Response(response=422, description="Validation error or date overlap", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function store(Request $request)
     {
         try {
@@ -173,18 +120,6 @@ class ListingReservationController extends Controller
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/listing-reservations/{id}",
-     *     summary="Get a specific reservation",
-     *     operationId="getListingReservation",
-     *     tags={"Listing Reservations"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Reservation details", @OA\JsonContent(ref="#/components/schemas/ListingReservation")),
-     *     @OA\Response(response=404, description="Reservation not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function show($id)
     {
         try {
@@ -197,18 +132,6 @@ class ListingReservationController extends Controller
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/listing-reservations/ref/{ref}",
-     *     summary="Get a reservation by reference code",
-     *     operationId="getListingReservationByRef",
-     *     tags={"Listing Reservations"},
-     *     @OA\Parameter(name="ref", in="path", required=true, description="Reservation reference code (e.g., RES-A1B2C3D4)", @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Reservation details", @OA\JsonContent(ref="#/components/schemas/ListingReservation")),
-     *     @OA\Response(response=404, description="Reservation not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function showByRef($ref)
     {
         try {
@@ -223,40 +146,6 @@ class ListingReservationController extends Controller
         }
     }
 
-    /**
-     * @OA\Put(
-     *     path="/listing-reservations/{id}",
-     *     summary="Update a reservation",
-     *     description="Update an existing reservation with overlap checking",
-     *     operationId="updateListingReservation",
-     *     tags={"Listing Reservations"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             @OA\Property(property="listing_id", type="integer"),
-     *             @OA\Property(property="user_id", type="integer"),
-     *             @OA\Property(property="start_date", type="string", format="date"),
-     *             @OA\Property(property="end_date", type="string", format="date"),
-     *             @OA\Property(property="is_blocked", type="boolean"),
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="phone", type="string"),
-     *             @OA\Property(property="email", type="string", format="email"),
-     *             @OA\Property(property="sex", type="string", enum={"male", "female"}),
-     *             @OA\Property(property="client_type", type="string", enum={"family", "group", "one"}),
-     *             @OA\Property(property="nights", type="integer"),
-     *             @OA\Property(property="total", type="number", format="float"),
-     *             @OA\Property(property="subtotal", type="number", format="float"),
-     *             @OA\Property(property="per_night", type="number", format="float"),
-     *             @OA\Property(property="service_fee", type="number", format="float"),
-     *             @OA\Property(property="currency_id", type="integer")
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Reservation updated", @OA\JsonContent(ref="#/components/schemas/ListingReservation")),
-     *     @OA\Response(response=404, description="Reservation not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error or date overlap", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -336,18 +225,6 @@ class ListingReservationController extends Controller
         }
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/listing-reservations/{id}",
-     *     summary="Delete a reservation",
-     *     operationId="deleteListingReservation",
-     *     tags={"Listing Reservations"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Reservation deleted", @OA\JsonContent(@OA\Property(property="message", type="string"))),
-     *     @OA\Response(response=404, description="Reservation not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function destroy($id)
     {
         try {
