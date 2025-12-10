@@ -11,24 +11,6 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class BlogCommentController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/blogs/{blogId}/comments",
-     *     summary="Get comments for a blog",
-     *     description="Retrieve approved comments for a specific blog (optionally includes user_liked if authenticated)",
-     *     operationId="getBlogComments",
-     *     tags={"Blog Comments"},
-     *     @OA\Parameter(name="blogId", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="sort_by", in="query", @OA\Schema(type="string", default="created_at")),
-     *     @OA\Parameter(name="sort_order", in="query", @OA\Schema(type="string", enum={"asc", "desc"}, default="desc")),
-     *     @OA\Parameter(name="all", in="query", @OA\Schema(type="boolean")),
-     *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=20)),
-     *     @OA\Response(response=200, description="List of comments", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/BlogComment"))),
-     *     @OA\Response(response=404, description="Blog not found", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     *
-     * Get comments for a specific blog
-     */
     public function index(Request $request, $blogId)
     {
         $blog = Blog::findOrFail($blogId);
@@ -112,32 +94,6 @@ class BlogCommentController extends Controller
 
 
 
-    /**
-     * @OA\Post(
-     *     path="/blogs/{blogId}/comments",
-     *     summary="Create a new comment",
-     *     description="Post a comment on a blog (requires authentication)",
-     *     operationId="createBlogComment",
-     *     tags={"Blog Comments"},
-     *     security={{"sanctum": {}}},
-     *     @OA\Parameter(name="blogId", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"content"},
-     *             @OA\Property(property="content", type="string", minLength=3, maxLength=2000),
-     *             @OA\Property(property="parent_id", type="integer", nullable=true, description="Reply to comment ID")
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Comment created", @OA\JsonContent(@OA\Property(property="message", type="string"), @OA\Property(property="comment", ref="#/components/schemas/BlogComment"))),
-     *     @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=403, description="Comments disabled", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=404, description="Blog not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
-     * )
-     *
-     * Store a new comment
-     */
     public function store(Request $request, $blogId)
     {
         $blog = Blog::findOrFail($blogId);
@@ -184,32 +140,6 @@ class BlogCommentController extends Controller
         ], 201);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/blogs/{blogId}/comments/{id}",
-     *     summary="Update a comment",
-     *     description="Update your own comment (requires authentication)",
-     *     operationId="updateBlogComment",
-     *     tags={"Blog Comments"},
-     *     security={{"sanctum": {}}},
-     *     @OA\Parameter(name="blogId", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"content"},
-     *             @OA\Property(property="content", type="string", minLength=3, maxLength=2000)
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Comment updated", @OA\JsonContent(@OA\Property(property="message", type="string"), @OA\Property(property="comment", ref="#/components/schemas/BlogComment"))),
-     *     @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=403, description="Unauthorized", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=404, description="Comment not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
-     * )
-     *
-     * Update a comment
-     */
     public function update(Request $request, $blogId, $id)
     {
         $comment = BlogComment::where('blog_id', $blogId)->findOrFail($id);
@@ -242,24 +172,6 @@ class BlogCommentController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/blogs/{blogId}/comments/{id}",
-     *     summary="Delete a comment",
-     *     description="Delete your own comment (requires authentication)",
-     *     operationId="deleteBlogComment",
-     *     tags={"Blog Comments"},
-     *     security={{"sanctum": {}}},
-     *     @OA\Parameter(name="blogId", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Comment deleted", @OA\JsonContent(@OA\Property(property="message", type="string"))),
-     *     @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=403, description="Unauthorized", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=404, description="Comment not found", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     *
-     * Delete a comment
-     */
     public function destroy($blogId, $id)
     {
         $comment = BlogComment::where('blog_id', $blogId)->findOrFail($id);
@@ -278,30 +190,6 @@ class BlogCommentController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/blogs/{blogId}/comments/{id}/like",
-     *     summary="Toggle like on a comment",
-     *     operationId="toggleCommentLike",
-     *     tags={"Blog Comments"},
-     *     security={{"sanctum": {}}},
-     *     @OA\Parameter(name="blogId", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Like toggled",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string"),
-     *             @OA\Property(property="liked", type="boolean"),
-     *             @OA\Property(property="likes_count", type="integer")
-     *         )
-     *     ),
-     *     @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=404, description="Comment not found", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     *
-     * Toggle like on a comment
-     */
     public function toggleLike(Request $request, $blogId, $id)
     {
         $comment = BlogComment::where('blog_id', $blogId)->findOrFail($id);
@@ -315,25 +203,6 @@ class BlogCommentController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/admin/comments",
-     *     summary="Get all comments (Admin)",
-     *     description="Get all comments with filters (requires authentication)",
-     *     operationId="getAllComments",
-     *     tags={"Blog Comments"},
-     *     security={{"sanctum": {}}},
-     *     @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"pending", "approved", "rejected", "spam"})),
-     *     @OA\Parameter(name="blog_id", in="query", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="sort_by", in="query", @OA\Schema(type="string", default="created_at")),
-     *     @OA\Parameter(name="sort_order", in="query", @OA\Schema(type="string", enum={"asc", "desc"}, default="desc")),
-     *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer", default=20)),
-     *     @OA\Response(response=200, description="List of comments", @OA\JsonContent(type="object")),
-     *     @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     *
-     * Get all comments (admin)
-     */
     public function all(Request $request)
     {
         $query = BlogComment::with(['user', 'blog']);
@@ -359,29 +228,6 @@ class BlogCommentController extends Controller
         return response()->json($comments);
     }
 
-    /**
-     * @OA\Patch(
-     *     path="/admin/comments/{id}/status",
-     *     summary="Update comment status (Admin)",
-     *     operationId="updateCommentStatus",
-     *     tags={"Blog Comments"},
-     *     security={{"sanctum": {}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"status"},
-     *             @OA\Property(property="status", type="string", enum={"pending", "approved", "rejected", "spam"})
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Status updated", @OA\JsonContent(@OA\Property(property="message", type="string"), @OA\Property(property="comment", ref="#/components/schemas/BlogComment"))),
-     *     @OA\Response(response=401, description="Unauthenticated", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=404, description="Comment not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError"))
-     * )
-     *
-     * Update comment status (admin)
-     */
     public function updateStatus(Request $request, $id)
     {
         $comment = BlogComment::findOrFail($id);

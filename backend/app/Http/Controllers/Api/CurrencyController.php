@@ -8,21 +8,6 @@ use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/currencies",
-     *     summary="Get all currencies",
-     *     description="Retrieve a list of all available currencies",
-     *     operationId="getCurrencies",
-     *     tags={"Currencies"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of currencies",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Currency"))
-     *     ),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function index()
     {
         try {
@@ -33,29 +18,6 @@ class CurrencyController extends Controller
         }
     }
 
-    /**
-     * @OA\Post(
-     *     path="/currencies",
-     *     summary="Create a new currency",
-     *     description="Create a new currency with exchange rate",
-     *     operationId="createCurrency",
-     *     tags={"Currencies"},
-     *     security={{"sanctum":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name", "label", "symbol", "exchange_rate"},
-     *             @OA\Property(property="name", type="string", example="US Dollar"),
-     *             @OA\Property(property="label", type="string", example="USD"),
-     *             @OA\Property(property="symbol", type="string", example="$"),
-     *             @OA\Property(property="exchange_rate", type="number", format="float", example=1.000000)
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="Currency created", @OA\JsonContent(ref="#/components/schemas/Currency")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function store(Request $request)
     {
         try {
@@ -78,18 +40,6 @@ class CurrencyController extends Controller
         }
     }
 
-    /**
-     * @OA\Get(
-     *     path="/currencies/{id}",
-     *     summary="Get a specific currency",
-     *     operationId="getCurrency",
-     *     tags={"Currencies"},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Currency details", @OA\JsonContent(ref="#/components/schemas/Currency")),
-     *     @OA\Response(response=404, description="Currency not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function show($id)
     {
         try {
@@ -102,29 +52,6 @@ class CurrencyController extends Controller
         }
     }
 
-    /**
-     * @OA\Put(
-     *     path="/currencies/{id}",
-     *     summary="Update a currency",
-     *     description="Update an existing currency",
-     *     operationId="updateCurrency",
-     *     tags={"Currencies"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string", example="US Dollar"),
-     *             @OA\Property(property="label", type="string", example="USD"),
-     *             @OA\Property(property="symbol", type="string", example="$"),
-     *             @OA\Property(property="exchange_rate", type="number", format="float", example=1.000000)
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="Currency updated", @OA\JsonContent(ref="#/components/schemas/Currency")),
-     *     @OA\Response(response=404, description="Currency not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=422, description="Validation error", @OA\JsonContent(ref="#/components/schemas/ValidationError")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -151,19 +78,6 @@ class CurrencyController extends Controller
         }
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/currencies/{id}",
-     *     summary="Delete a currency",
-     *     operationId="deleteCurrency",
-     *     tags={"Currencies"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Currency deleted", @OA\JsonContent(@OA\Property(property="message", type="string"))),
-     *     @OA\Response(response=404, description="Currency not found", @OA\JsonContent(ref="#/components/schemas/Error")),
-     *     @OA\Response(response=500, description="Server error", @OA\JsonContent(ref="#/components/schemas/Error"))
-     * )
-     */
     public function destroy($id)
     {
         try {
