@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\FacilityController;
 use App\Http\Controllers\Api\ListingController;
 use App\Http\Controllers\Api\ListingReservationController;
 use App\Http\Controllers\Api\CurrencyController;
+use App\Http\Controllers\Api\LanguageController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\BlogCategoryController;
@@ -30,12 +31,25 @@ Route::post('/categories/{category}', [CategoryController::class, 'update']); //
 Route::put('/categories/{category}', [CategoryController::class, 'update']);
 Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
-// Cities
+// Languages (Public routes - for getting available languages)
+Route::get('/languages', [LanguageController::class, 'index']); // Active languages only
+Route::get('/languages/all', [LanguageController::class, 'all']); // All languages (including inactive)
+Route::get('/languages/default', [LanguageController::class, 'getDefault']); // Get default language
+Route::get('/languages/{id}', [LanguageController::class, 'show']);
+
+// Cities (with language support via ?lang=en parameter)
 Route::get('/cities', [CityController::class, 'index']);
 Route::get('/cities/{city}', [CityController::class, 'show']);
 Route::post('/cities', [CityController::class, 'store']);
 Route::put('/cities/{city}', [CityController::class, 'update']);
 Route::delete('/cities/{city}', [CityController::class, 'destroy']);
+
+// Currencies (with language support via ?lang=en parameter)
+Route::get('/currencies', [CurrencyController::class, 'index']);
+Route::get('/currencies/{currency}', [CurrencyController::class, 'show']);
+Route::post('/currencies', [CurrencyController::class, 'store']);
+Route::put('/currencies/{currency}', [CurrencyController::class, 'update']);
+Route::delete('/currencies/{currency}', [CurrencyController::class, 'destroy']);
 
 // Users
 Route::get('/users', [UserController::class, 'index']);
@@ -67,13 +81,6 @@ Route::post('/listings', [ListingController::class, 'store']);
 Route::post('/listings/{listing}', [ListingController::class, 'update']); // For file upload with _method
 Route::put('/listings/{listing}', [ListingController::class, 'update']);
 Route::delete('/listings/{listing}', [ListingController::class, 'destroy']);
-
-// Currencies
-Route::get('/currencies', [CurrencyController::class, 'index']);
-Route::get('/currencies/{currency}', [CurrencyController::class, 'show']);
-Route::post('/currencies', [CurrencyController::class, 'store']);
-Route::put('/currencies/{currency}', [CurrencyController::class, 'update']);
-Route::delete('/currencies/{currency}', [CurrencyController::class, 'destroy']);
 
 // Listing Reservations
 Route::get('/listing-reservations', [ListingReservationController::class, 'index']);
@@ -107,6 +114,12 @@ Route::get('/blogs/{blogId}/comments', [BlogCommentController::class, 'index']);
 
 // Blog Admin routes (Protected)
 Route::middleware(['auth:sanctum'])->group(function () {
+    // Language Management (Admin only)
+    Route::post('/languages', [LanguageController::class, 'store']);
+    Route::put('/languages/{id}', [LanguageController::class, 'update']);
+    Route::delete('/languages/{id}', [LanguageController::class, 'destroy']);
+    Route::post('/languages/{id}/set-default', [LanguageController::class, 'setDefault']);
+    
     // Blog Management
     Route::post('/blogs', [BlogController::class, 'store']);
     Route::post('/blogs/{id}', [BlogController::class, 'update']); // For file upload with _method

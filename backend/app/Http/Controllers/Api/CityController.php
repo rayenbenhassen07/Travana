@@ -4,38 +4,73 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\City;
+use App\Models\Language;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CityController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $cities = City::with('listings')->get();
+        $languageCode = $request->input('lang', 'en');
+        
+        $cities = City::with(['translations.language', 'listings'])
+            ->where('is_active', true)
+            ->get()
+            ->map(function ($city) use ($languageCode) {
+                return $this->formatCityResponse($city, $languageCode);
+            });
+            
         return response()->json($cities);
     }
 
     public function store(Request $request)
     {
         try {
-            $request->validate([
-                'name' => 'required|string|max:255|unique:cities,name',
-                'slug' => 'nullable|string|unique:cities,slug',
+            $validated = $request->validate([
+                'slug' => 'required|string|unique:cities,slug',
+                'latitude' => 'nullable|numeric|between:-90,90',
+                'longitude' => 'nullable|numeric|between:-180,180',
+                'is_active' => 'boolean',
+                'translations' => 'required|array|min:1',
+                'translations.*.language_code' => 'required|string|exists:languages,code',
+                'translations.*.name' => 'required|string|max:255',
             ]);
 
-            $data = $request->all();
-            if (!isset($data['slug'])) {
-                $data['slug'] = Str::slug($data['name']);
+            DB::beginTransaction();
+
+            $city = City::create([
+                'slug' => $validated['slug'],
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
+                'is_active' => $validated['is_active'] ?? true,
+            ]);
+
+            // Create translations
+            foreach ($validated['translations'] as $translation) {
+                $language = Language::where('code', $translation['language_code'])->first();
+                $city->translations()->create([
+                    'language_id' => $language->id,
+                    'name' => $translation['name'],
+                ]);
             }
 
-            $city = City::create($data);
-            return response()->json($city, 201);
+            DB::commit();
+
+            $languageCode = $request->input('lang', 'en');
+            return response()->json(
+                $this->formatCityResponse($city->fresh(['translations.language']), $languageCode),
+                201
+            );
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Failed to create city',
                 'error' => $e->getMessage(),
@@ -43,10 +78,12 @@ class CityController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $city = City::with('listings')->findOrFail($id);
-        return response()->json($city);
+        $languageCode = $request->input('lang', 'en');
+        $city = City::with(['translations.language', 'listings'])->findOrFail($id);
+        
+        return response()->json($this->formatCityResponse($city, $languageCode));
     }
 
     public function update(Request $request, $id)
@@ -54,28 +91,56 @@ class CityController extends Controller
         try {
             $city = City::findOrFail($id);
 
-            $request->validate([
-                'name' => 'sometimes|required|string|max:255|unique:cities,name,' . $id,
-                'slug' => 'nullable|string|unique:cities,slug,' . $id,
+            $validated = $request->validate([
+                'slug' => 'sometimes|required|string|unique:cities,slug,' . $id,
+                'latitude' => 'nullable|numeric|between:-90,90',
+                'longitude' => 'nullable|numeric|between:-180,180',
+                'is_active' => 'boolean',
+                'translations' => 'sometimes|array|min:1',
+                'translations.*.language_code' => 'required_with:translations|string|exists:languages,code',
+                'translations.*.name' => 'required_with:translations|string|max:255',
             ]);
 
-            $data = $request->all();
-            if (isset($data['name']) && !isset($data['slug'])) {
-                $data['slug'] = Str::slug($data['name']);
+            DB::beginTransaction();
+
+            // Update city data
+            $city->update([
+                'slug' => $validated['slug'] ?? $city->slug,
+                'latitude' => $validated['latitude'] ?? $city->latitude,
+                'longitude' => $validated['longitude'] ?? $city->longitude,
+                'is_active' => $validated['is_active'] ?? $city->is_active,
+            ]);
+
+            // Update translations if provided
+            if (isset($validated['translations'])) {
+                foreach ($validated['translations'] as $translation) {
+                    $language = Language::where('code', $translation['language_code'])->first();
+                    $city->translations()->updateOrCreate(
+                        ['language_id' => $language->id],
+                        ['name' => $translation['name']]
+                    );
+                }
             }
 
-            $city->update($data);
-            return response()->json($city);
+            DB::commit();
+
+            $languageCode = $request->input('lang', 'en');
+            return response()->json(
+                $this->formatCityResponse($city->fresh(['translations.language']), $languageCode)
+            );
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'City not found',
             ], 404);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'message' => 'Failed to update city',
                 'error' => $e->getMessage(),
@@ -108,5 +173,29 @@ class CityController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Format city response with translations
+     */
+    private function formatCityResponse($city, $languageCode = 'en')
+    {
+        $translations = [];
+        foreach ($city->translations as $translation) {
+            $translations[$translation->language->code] = $translation->name;
+        }
+
+        return [
+            'id' => $city->id,
+            'slug' => $city->slug,
+            'latitude' => $city->latitude,
+            'longitude' => $city->longitude,
+            'is_active' => $city->is_active,
+            'name' => $city->getTranslatedName($languageCode) ?? $translations['en'] ?? null,
+            'translations' => $translations,
+            'listings_count' => $city->listings->count(),
+            'created_at' => $city->created_at,
+            'updated_at' => $city->updated_at,
+        ];
     }
 }
