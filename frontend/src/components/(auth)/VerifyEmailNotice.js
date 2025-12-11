@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Alert from "@/components/shared/Alert";
 import { Button } from "@/components/shared/inputs/Button";
 import { FaCheckCircle, FaPaperPlane } from "react-icons/fa";
 import axios from "@/lib/axios";
+import { toast } from "sonner";
 
 export default function VerifyEmailNotice({ email, onDismiss }) {
   const [isResending, setIsResending] = useState(false);
-  const [resendStatus, setResendStatus] = useState(null);
 
   const handleResend = async () => {
     if (!email) return;
 
     setIsResending(true);
-    setResendStatus(null);
 
     try {
       const response = await axios.post(
@@ -25,21 +23,14 @@ export default function VerifyEmailNotice({ email, onDismiss }) {
       );
 
       if (response.data.verified) {
-        setResendStatus({
-          type: "success",
-          message: "Votre email est déjà vérifié ! Vous pouvez vous connecter.",
-        });
+        toast.success(
+          "Votre email est déjà vérifié ! Vous pouvez vous connecter."
+        );
       } else {
-        setResendStatus({
-          type: "success",
-          message: "Un nouveau lien de vérification a été envoyé !",
-        });
+        toast.success("Un nouveau lien de vérification a été envoyé !");
       }
     } catch (error) {
-      setResendStatus({
-        type: "error",
-        message: "Erreur lors de l'envoi. Veuillez réessayer.",
-      });
+      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
     } finally {
       setIsResending(false);
     }
@@ -47,19 +38,16 @@ export default function VerifyEmailNotice({ email, onDismiss }) {
 
   return (
     <div className="space-y-4">
-      <Alert
-        type="info"
-        title="Vérifiez votre email"
-        message={`Nous avons envoyé un email de vérification à ${email}. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte.`}
-      />
-
-      {resendStatus && (
-        <Alert
-          type={resendStatus.type}
-          message={resendStatus.message}
-          onClose={() => setResendStatus(null)}
-        />
-      )}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <h4 className="font-semibold text-blue-800 mb-2">
+          Vérifiez votre email
+        </h4>
+        <p className="text-sm text-blue-700">
+          Nous avons envoyé un email de vérification à <strong>{email}</strong>.
+          Veuillez vérifier votre boîte de réception et cliquer sur le lien pour
+          activer votre compte.
+        </p>
+      </div>
 
       <div className="bg-green-50 border border-green-200 rounded-xl p-4">
         <div className="flex items-start gap-3">

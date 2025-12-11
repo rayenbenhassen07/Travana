@@ -6,10 +6,12 @@ export const useCurrencyStore = create((set, get) => ({
   isLoading: false,
   error: null,
 
-  fetchCurrencies: async () => {
+  fetchCurrencies: async (lang = "en") => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get("/api/currencies");
+      const response = await axios.get("/api/currencies", {
+        params: { lang },
+      });
       set({ currencies: response.data, isLoading: false });
     } catch (error) {
       set({
@@ -42,7 +44,7 @@ export const useCurrencyStore = create((set, get) => ({
   updateCurrency: async (id, currencyData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.patch(`/api/currencies/${id}`, currencyData);
+      const response = await axios.put(`/api/currencies/${id}`, currencyData);
       set((state) => ({
         currencies: state.currencies.map((currency) =>
           currency.id === id ? response.data : currency

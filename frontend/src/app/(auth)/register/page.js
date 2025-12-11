@@ -9,14 +9,13 @@ import useAuthStore from "@/store/useAuthStore";
 import { Input } from "@/components/shared/inputs/Input";
 import { Select } from "@/components/shared/inputs/Select";
 import { Button } from "@/components/shared/inputs/Button";
-import Alert from "@/components/shared/Alert";
 import VerifyEmailNotice from "@/components/(auth)/VerifyEmailNotice";
 import { FaUser, FaEnvelope, FaLock, FaPhone } from "react-icons/fa";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [authError, setAuthError] = useState(null);
   const [serverErrors, setServerErrors] = useState({});
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
@@ -47,7 +46,6 @@ export default function RegisterPage() {
   const onSubmit = async (data) => {
     try {
       setIsLoading(true);
-      setAuthError(null);
       setServerErrors({});
 
       const res = await registerUser(data);
@@ -55,13 +53,14 @@ export default function RegisterPage() {
       if (res.success) {
         setRegisteredEmail(data.email);
         setRegistrationSuccess(true);
+        toast.success("Inscription réussie ! Vérifiez votre email.");
       } else {
-        setAuthError(res.error);
+        toast.error(res.error);
         setServerErrors(res.errors || {});
       }
     } catch (error) {
       console.error("Unexpected error:", error);
-      setAuthError("Une erreur inattendue s'est produite");
+      toast.error("Une erreur inattendue s'est produite");
     } finally {
       setIsLoading(false);
     }
@@ -82,14 +81,6 @@ export default function RegisterPage() {
         <VerifyEmailNotice email={registeredEmail} />
       ) : (
         <>
-          {authError && (
-            <Alert
-              type="error"
-              message={authError}
-              onClose={() => setAuthError(null)}
-            />
-          )}
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <Input
               label="Nom complet"

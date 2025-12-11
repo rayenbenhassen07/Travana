@@ -5,14 +5,13 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { Input } from "@/components/shared/inputs/Input";
 import { Button } from "@/components/shared/inputs/Button";
-import Alert from "@/components/shared/Alert";
 import { FaEnvelope, FaCheckCircle } from "react-icons/fa";
 import axios from "@/lib/axios";
 import { translateError } from "@/lib/translations";
+import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [sentEmail, setSentEmail] = useState("");
 
@@ -24,7 +23,6 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setError(null);
     setSuccess(false);
 
     try {
@@ -35,13 +33,14 @@ export default function ForgotPasswordPage() {
       if (response.status === 200) {
         setSuccess(true);
         setSentEmail(data.email);
+        toast.success("Email envoyé avec succès !");
       }
     } catch (err) {
       console.error("Forgot password error:", err);
       const errorMessage = translateError(
         err.response?.data?.message || "Une erreur s'est produite"
       );
-      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -62,10 +61,13 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <Alert
-          type="success"
-          message={`Nous avons envoyé un lien de réinitialisation à ${sentEmail}. Vérifiez votre boîte de réception et cliquez sur le lien pour réinitialiser votre mot de passe.`}
-        />
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p className="text-sm text-green-800">
+            Nous avons envoyé un lien de réinitialisation à{" "}
+            <strong>{sentEmail}</strong>. Vérifiez votre boîte de réception et
+            cliquez sur le lien pour réinitialiser votre mot de passe.
+          </p>
+        </div>
 
         <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-4">
           <p className="text-sm text-neutral-600">
@@ -96,10 +98,6 @@ export default function ForgotPasswordPage() {
           Entrez votre email pour recevoir un lien de réinitialisation
         </p>
       </div>
-
-      {error && (
-        <Alert type="error" message={error} onClose={() => setError(null)} />
-      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input

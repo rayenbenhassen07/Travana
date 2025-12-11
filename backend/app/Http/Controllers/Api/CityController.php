@@ -16,7 +16,7 @@ class CityController extends Controller
         $languageCode = $request->input('lang', 'en');
         
         $cities = City::with(['translations.language', 'listings'])
-            ->where('is_active', true)
+           
             ->get()
             ->map(function ($city) use ($languageCode) {
                 return $this->formatCityResponse($city, $languageCode);

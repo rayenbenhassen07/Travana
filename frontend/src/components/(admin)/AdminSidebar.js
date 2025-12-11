@@ -21,6 +21,9 @@ import {
   FaChevronUp,
   FaBlog,
   FaBlogger,
+  FaLanguage,
+  FaCube,
+  FaDollarSign,
 } from "react-icons/fa";
 import { MdCategory, MdTag } from "react-icons/md";
 import Image from "next/image";
@@ -79,6 +82,18 @@ const AdminSidebar = ({
       title: "Cities",
       icon: <FaMapMarkerAlt />,
       href: "/admin/cities",
+      badge: null,
+    },
+    {
+      title: "Languages",
+      icon: <FaLanguage />,
+      href: "/admin/languages",
+      badge: null,
+    },
+    {
+      title: "Currencies",
+      icon: <FaDollarSign />,
+      href: "/admin/currencies",
       badge: null,
     },
     {

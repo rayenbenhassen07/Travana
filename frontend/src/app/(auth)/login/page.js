@@ -7,14 +7,13 @@ import Link from "next/link";
 import useAuthStore from "@/store/useAuthStore";
 import { Input } from "@/components/shared/inputs/Input";
 import { Button } from "@/components/shared/inputs/Button";
-import Alert from "@/components/shared/Alert";
 import VerifyEmailNotice from "@/components/(auth)/VerifyEmailNotice";
 import { FaEnvelope, FaLock } from "react-icons/fa";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [authError, setAuthError] = useState(null);
   const [showVerificationNotice, setShowVerificationNotice] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const login = useAuthStore((s) => s.login);
@@ -40,7 +39,6 @@ export default function LoginPage() {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setAuthError(null);
 
     const res = await login(data);
 
@@ -51,10 +49,11 @@ export default function LoginPage() {
         setUserEmail(res.user.email);
       } else {
         // Email verified - redirect to home
+        toast.success("Connexion réussie !");
         router.push("/");
       }
     } else {
-      setAuthError(res.error);
+      toast.error(res.error);
     }
 
     setIsLoading(false);
@@ -76,14 +75,6 @@ export default function LoginPage() {
         />
       ) : (
         <>
-          {authError && (
-            <Alert
-              type="error"
-              message={authError}
-              onClose={() => setAuthError(null)}
-            />
-          )}
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="Email"

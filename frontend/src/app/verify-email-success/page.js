@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Alert from "@/components/shared/Alert";
 import { FaHome, FaCheckCircle } from "react-icons/fa";
 
 function VerifyEmailSuccessContent() {
@@ -39,14 +38,13 @@ function VerifyEmailSuccessContent() {
           </h1>
         </div>
 
-        <Alert
-          type="success"
-          message={
-            already
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p className="text-sm text-green-800">
+            {already
               ? "Votre email a déjà été vérifié. Vous pouvez vous connecter."
-              : "Votre adresse email a été vérifiée avec succès. Vous pouvez maintenant profiter de toutes les fonctionnalités."
-          }
-        />
+              : "Votre adresse email a été vérifiée avec succès. Vous pouvez maintenant profiter de toutes les fonctionnalités."}
+          </p>
+        </div>
 
         <div className="space-y-3">
           <Link

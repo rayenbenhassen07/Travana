@@ -3,22 +3,20 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Alert from "@/components/shared/Alert";
 import { Button } from "@/components/shared/inputs/Button";
 import { FaEnvelope, FaHome, FaPaperPlane } from "react-icons/fa";
 import axios from "@/lib/axios";
+import { toast } from "sonner";
 
 function CheckEmailContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const [isResending, setIsResending] = useState(false);
-  const [resendStatus, setResendStatus] = useState(null);
 
   const handleResend = async () => {
     if (!email) return;
 
     setIsResending(true);
-    setResendStatus(null);
 
     try {
       const response = await axios.post(
@@ -29,22 +27,16 @@ function CheckEmailContent() {
       );
 
       if (response.data.verified) {
-        setResendStatus({
-          type: "success",
-          message: "Votre email est déjà vérifié ! Vous pouvez vous connecter.",
-        });
+        toast.success(
+          "Votre email est déjà vérifié ! Vous pouvez vous connecter."
+        );
       } else {
-        setResendStatus({
-          type: "success",
-          message:
-            "Un nouveau lien de vérification a été envoyé à votre adresse email.",
-        });
+        toast.success(
+          "Un nouveau lien de vérification a été envoyé à votre adresse email."
+        );
       }
     } catch (error) {
-      setResendStatus({
-        type: "error",
-        message: "Une erreur s'est produite. Veuillez réessayer plus tard.",
-      });
+      toast.error("Une erreur s'est produite. Veuillez réessayer plus tard.");
     } finally {
       setIsResending(false);
     }
@@ -62,22 +54,13 @@ function CheckEmailContent() {
           </h1>
         </div>
 
-        <Alert
-          type="info"
-          message={
-            email
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <p className="text-sm text-blue-800">
+            {email
               ? `Nous avons envoyé un email de vérification à ${email}. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte.`
-              : "Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte."
-          }
-        />
-
-        {resendStatus && (
-          <Alert
-            type={resendStatus.type}
-            message={resendStatus.message}
-            onClose={() => setResendStatus(null)}
-          />
-        )}
+              : "Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte."}
+          </p>
+        </div>
 
         <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-4">
           <h3 className="font-semibold text-neutral-800 mb-2">

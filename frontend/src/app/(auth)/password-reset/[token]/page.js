@@ -6,10 +6,10 @@ import { useRouter, useSearchParams, useParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/shared/inputs/Input";
 import { Button } from "@/components/shared/inputs/Button";
-import Alert from "@/components/shared/Alert";
 import { FaLock, FaCheckCircle } from "react-icons/fa";
 import axios from "@/lib/axios";
 import { translateError } from "@/lib/translations";
+import { toast } from "sonner";
 
 function ResetPasswordContent() {
   const router = useRouter();
@@ -19,7 +19,6 @@ function ResetPasswordContent() {
   const email = searchParams.get("email");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
   const {
@@ -37,12 +36,11 @@ function ResetPasswordContent() {
 
   const onSubmit = async (data) => {
     if (!token) {
-      setError("Lien de réinitialisation invalide");
+      toast.error("Lien de réinitialisation invalide");
       return;
     }
 
     setIsLoading(true);
-    setError(null);
 
     try {
       const response = await axios.post("/api/reset-password", {
@@ -54,6 +52,7 @@ function ResetPasswordContent() {
 
       if (response.status === 200) {
         setSuccess(true);
+        toast.success("Mot de passe réinitialisé avec succès !");
         // Redirect to login after 2 seconds
         setTimeout(() => {
           router.push("/login");
@@ -64,7 +63,7 @@ function ResetPasswordContent() {
       const errorMessage = translateError(
         err.response?.data?.message || "Une erreur s'est produite"
       );
-      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -79,10 +78,12 @@ function ResetPasswordContent() {
           </h1>
         </div>
 
-        <Alert
-          type="error"
-          message="Le lien de réinitialisation est invalide ou a expiré. Veuillez demander un nouveau lien."
-        />
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <p className="text-sm text-red-800">
+            Le lien de réinitialisation est invalide ou a expiré. Veuillez
+            demander un nouveau lien.
+          </p>
+        </div>
 
         <Link
           href="/forgot-password"
@@ -109,10 +110,12 @@ function ResetPasswordContent() {
           </p>
         </div>
 
-        <Alert
-          type="success"
-          message="Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe."
-        />
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <p className="text-sm text-green-800">
+            Votre mot de passe a été réinitialisé avec succès. Vous pouvez
+            maintenant vous connecter avec votre nouveau mot de passe.
+          </p>
+        </div>
       </div>
     );
   }
@@ -127,10 +130,6 @@ function ResetPasswordContent() {
           Choisissez un nouveau mot de passe sécurisé
         </p>
       </div>
-
-      {error && (
-        <Alert type="error" message={error} onClose={() => setError(null)} />
-      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
@@ -186,10 +185,7 @@ function ResetPasswordContent() {
       </form>
 
       <div className="text-center text-sm">
-        <Link
-          href="/login"
-          className="text-neutral-600 hover:text-primary-600"
-        >
+        <Link href="/login" className="text-neutral-600 hover:text-primary-600">
           Retour à la connexion
         </Link>
       </div>

@@ -16,7 +16,7 @@ class CurrencyController extends Controller
             $languageCode = $request->input('lang', 'en');
             
             $currencies = Currency::with('translations.language')
-                ->where('is_active', true)
+              
                 ->get()
                 ->map(function ($currency) use ($languageCode) {
                     return $this->formatCurrencyResponse($currency, $languageCode);
