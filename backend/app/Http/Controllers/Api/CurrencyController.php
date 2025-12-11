@@ -42,6 +42,23 @@ class CurrencyController extends Controller
                 'translations.*.name' => 'required|string|max:255',
             ]);
 
+            // Get all active languages
+            $activeLanguages = Language::where('is_active', true)->pluck('code')->toArray();
+            $providedLanguages = array_column($validated['translations'], 'language_code');
+            
+            // Check if all active languages have translations
+            $missingLanguages = array_diff($activeLanguages, $providedLanguages);
+            if (!empty($missingLanguages)) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => [
+                        'translations' => [
+                            'Please provide translations for all languages: ' . implode(', ', $missingLanguages)
+                        ]
+                    ],
+                ], 422);
+            }
+
             DB::beginTransaction();
 
             $currency = Currency::create([
@@ -123,6 +140,24 @@ class CurrencyController extends Controller
 
             // Update translations if provided
             if (isset($validated['translations'])) {
+                // Get all active languages
+                $activeLanguages = Language::where('is_active', true)->pluck('code')->toArray();
+                $providedLanguages = array_column($validated['translations'], 'language_code');
+                
+                // Check if all active languages have translations
+                $missingLanguages = array_diff($activeLanguages, $providedLanguages);
+                if (!empty($missingLanguages)) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'Validation failed',
+                        'errors' => [
+                            'translations' => [
+                                'Please provide translations for all languages: ' . implode(', ', $missingLanguages)
+                            ]
+                        ],
+                    ], 422);
+                }
+                
                 foreach ($validated['translations'] as $translation) {
                     $language = Language::where('code', $translation['language_code'])->first();
                     $currency->translations()->updateOrCreate(

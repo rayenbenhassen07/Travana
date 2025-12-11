@@ -1,17 +1,28 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useCityStore } from "@/store/useCityStore";
+import { useLanguageStore } from "@/store/useLanguageStore";
+import CityModal from "@/components/(admin)/modals/CityModal";
+import LanguageSelector from "@/components/shared/LanguageSelector";
 import Table from "@/components/shared/Table";
 import Pagination from "@/components/shared/Pagination";
-import Modal from "@/components/shared/Modal";
 import DeleteConfirmation from "@/components/shared/DeleteConfirmation";
 import { Input, Button } from "@/components/shared/inputs";
-import { FaPlus, FaEdit, FaTrash, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaMapMarkerAlt,
+  FaGlobe,
+} from "react-icons/fa";
 import { toast } from "sonner";
 
 const CitiesPage = () => {
-  const { cities, isLoading, fetchCities, addCity, updateCity, deleteCity } =
-    useCityStore();
+  const { cities, isLoading, fetchCities, deleteCity } = useCityStore();
+  const { languages, fetchLanguages, getDefaultLanguage } = useLanguageStore();
+
+  // Language state
+  const [currentLanguage, setCurrentLanguage] = useState("en");
 
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -19,8 +30,6 @@ const CitiesPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Form states
-  const [formData, setFormData] = useState({ name: "" });
-  const [formErrors, setFormErrors] = useState({});
   const [selectedCity, setSelectedCity] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,7 +49,25 @@ const CitiesPage = () => {
   // Fetch cities on mount
   useEffect(() => {
     fetchCities();
-  }, [fetchCities]);
+    fetchLanguages();
+  }, [fetchCities, fetchLanguages]);
+
+  // Set default language when languages are loaded
+  useEffect(() => {
+    if (languages.length > 0) {
+      const defaultLang = getDefaultLanguage();
+      if (defaultLang) {
+        setCurrentLanguage(defaultLang.code);
+      }
+    }
+  }, [languages, getDefaultLanguage]);
+
+  // Fetch cities when language changes
+  useEffect(() => {
+    if (currentLanguage) {
+      fetchCities(currentLanguage);
+    }
+  }, [currentLanguage, fetchCities]);
 
   // Handle sort
   const handleSort = (key) => {
@@ -85,34 +112,15 @@ const CitiesPage = () => {
     currentPage * itemsPerPage
   );
 
-  // Reset form
-  const resetForm = () => {
-    setFormData({ name: "" });
-    setFormErrors({});
-    setSelectedCity(null);
-  };
-
-  // Validate form
-  const validateForm = () => {
-    const errors = {};
-    if (!formData.name.trim()) {
-      errors.name = "City name is required";
-    }
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   // Handle add
   const handleAdd = () => {
-    resetForm();
+    setSelectedCity(null);
     setIsAddModalOpen(true);
   };
 
   // Handle edit
   const handleEdit = (city) => {
     setSelectedCity(city);
-    setFormData({ name: city.name });
-    setFormErrors({});
     setIsEditModalOpen(true);
   };
 
@@ -122,70 +130,17 @@ const CitiesPage = () => {
     setIsDeleteModalOpen(true);
   };
 
-  // Submit add
-  const handleSubmitAdd = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    try {
-      await addCity(formData.name);
-      toast.success("City added successfully!");
-      setIsAddModalOpen(false);
-      resetForm();
-    } catch (error) {
-      const errorData = error.response?.data;
-
-      // Handle validation errors
-      if (errorData?.errors) {
-        const errors = {};
-        Object.keys(errorData.errors).forEach((key) => {
-          errors[key] = errorData.errors[key][0];
-        });
-        setFormErrors(errors);
-
-        // Show first error in toast
-        const firstError = Object.values(errorData.errors)[0][0];
-        toast.error(firstError);
-      } else {
-        toast.error(errorData?.message || "Failed to add city");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  // Handle success callbacks
+  const handleAddSuccess = (result) => {
+    toast.success("City added successfully!");
+    setIsAddModalOpen(false);
+    fetchCities(currentLanguage); // Refresh the list with current language
   };
 
-  // Submit edit
-  const handleSubmitEdit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    try {
-      await updateCity(selectedCity.id, formData.name);
-      toast.success("City updated successfully!");
-      setIsEditModalOpen(false);
-      resetForm();
-    } catch (error) {
-      const errorData = error.response?.data;
-
-      // Handle validation errors
-      if (errorData?.errors) {
-        const errors = {};
-        Object.keys(errorData.errors).forEach((key) => {
-          errors[key] = errorData.errors[key][0];
-        });
-        setFormErrors(errors);
-
-        // Show first error in toast
-        const firstError = Object.values(errorData.errors)[0][0];
-        toast.error(firstError);
-      } else {
-        toast.error(errorData?.message || "Failed to update city");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleEditSuccess = (result) => {
+    toast.success("City updated successfully!");
+    setIsEditModalOpen(false);
+    fetchCities(currentLanguage); // Refresh the list with current language
   };
 
   // Confirm delete
@@ -198,15 +153,11 @@ const CitiesPage = () => {
       setSelectedCity(null);
     } catch (error) {
       const errorData = error.response?.data;
-
-      // Show detailed error message
       if (errorData?.error) {
         toast.error(errorData.error);
       } else {
         toast.error(errorData?.message || "Failed to delete city");
       }
-
-      // Keep modal open to show the error
     } finally {
       setIsSubmitting(false);
     }
@@ -227,11 +178,32 @@ const CitiesPage = () => {
       label: "City Name",
       sortable: true,
       render: (row) => (
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center">
-            <FaMapMarkerAlt className="text-neutral-600" />
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center">
+              <FaMapMarkerAlt className="text-neutral-600" />
+            </div>
+            <div>
+              <span className="font-semibold text-neutral-800">{row.name}</span>
+              <div className="text-xs text-neutral-500">/{row.slug}</div>
+            </div>
           </div>
-          <span className="font-semibold text-neutral-800">{row.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "location",
+      label: "Location",
+      render: (row) => (
+        <div className="text-sm text-neutral-600">
+          {row.latitude && row.longitude ? (
+            <span className="font-mono text-xs">
+              {parseFloat(row.latitude).toFixed(4)},{" "}
+              {parseFloat(row.longitude).toFixed(4)}
+            </span>
+          ) : (
+            <span className="text-neutral-400">No coordinates</span>
+          )}
         </div>
       ),
     },
@@ -241,7 +213,22 @@ const CitiesPage = () => {
       sortable: true,
       render: (row) => (
         <span className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-full text-sm font-medium">
-          {row.listings?.length || 0} listings
+          {row.listings_count || 0} listings
+        </span>
+      ),
+    },
+    {
+      key: "is_active",
+      label: "Status",
+      render: (row) => (
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-medium ${
+            row.is_active
+              ? "bg-green-100 text-green-700"
+              : "bg-neutral-100 text-neutral-500"
+          }`}
+        >
+          {row.is_active ? "Active" : "Inactive"}
         </span>
       ),
     },
@@ -252,14 +239,14 @@ const CitiesPage = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleEdit(row)}
-            className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-all cursor-pointer"
+            className="p-2 text-neutral-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-all cursor-pointer"
             title="Edit"
           >
             <FaEdit size={16} />
           </button>
           <button
             onClick={() => handleDelete(row)}
-            className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-all cursor-pointer"
+            className="p-2 text-neutral-600 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-all cursor-pointer"
             title="Delete"
           >
             <FaTrash size={16} />
@@ -277,9 +264,16 @@ const CitiesPage = () => {
           <h1 className="text-3xl font-bold text-neutral-800">Cities</h1>
           <p className="text-neutral-500 mt-1">Manage cities and locations</p>
         </div>
-        <Button icon={<FaPlus />} onClick={handleAdd}>
-          Add City
-        </Button>
+        <div className="flex items-center gap-3">
+          <LanguageSelector
+            selectedLanguage={currentLanguage}
+            onLanguageChange={setCurrentLanguage}
+            size="md"
+          />
+          <Button icon={<FaPlus />} onClick={handleAdd}>
+            Add City
+          </Button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -314,84 +308,21 @@ const CitiesPage = () => {
       )}
 
       {/* Add Modal */}
-      <Modal
+      <CityModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Add New City"
-        size="md"
-      >
-        <form onSubmit={handleSubmitAdd} className="space-y-4">
-          <Input
-            label="City Name"
-            name="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Enter city name"
-            error={formErrors.name}
-            required
-            icon={<FaMapMarkerAlt />}
-          />
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsAddModalOpen(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isSubmitting}
-              className="flex-1"
-            >
-              Add City
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        onSuccess={handleAddSuccess}
+        mode="add"
+      />
 
       {/* Edit Modal */}
-      <Modal
+      <CityModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Edit City"
-        size="md"
-      >
-        <form onSubmit={handleSubmitEdit} className="space-y-4">
-          <Input
-            label="City Name"
-            name="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Enter city name"
-            error={formErrors.name}
-            required
-            icon={<FaMapMarkerAlt />}
-          />
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsEditModalOpen(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isSubmitting}
-              className="flex-1"
-            >
-              Update City
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        onSuccess={handleEditSuccess}
+        mode="edit"
+        city={selectedCity}
+      />
 
       {/* Delete Confirmation */}
       <DeleteConfirmation

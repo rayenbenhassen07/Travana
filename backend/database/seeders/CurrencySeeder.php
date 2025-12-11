@@ -57,54 +57,7 @@ class CurrencySeeder extends Seeder
                     'ar' => 'يورو',
                 ],
             ],
-            [
-                'code' => 'GBP',
-                'symbol' => '£',
-                'exchange_rate' => 0.260000,
-                'is_default' => false,
-                'is_active' => true,
-                'translations' => [
-                    'en' => 'British Pound',
-                    'fr' => 'Livre Sterling',
-                    'ar' => 'جنيه إسترليني',
-                ],
-            ],
-            [
-                'code' => 'MAD',
-                'symbol' => 'د.م.',
-                'exchange_rate' => 3.200000,
-                'is_default' => false,
-                'is_active' => true,
-                'translations' => [
-                    'en' => 'Moroccan Dirham',
-                    'fr' => 'Dirham Marocain',
-                    'ar' => 'درهم مغربي',
-                ],
-            ],
-            [
-                'code' => 'SAR',
-                'symbol' => 'ر.س',
-                'exchange_rate' => 1.200000,
-                'is_default' => false,
-                'is_active' => true,
-                'translations' => [
-                    'en' => 'Saudi Riyal',
-                    'fr' => 'Riyal Saoudien',
-                    'ar' => 'ريال سعودي',
-                ],
-            ],
-            [
-                'code' => 'AED',
-                'symbol' => 'د.إ',
-                'exchange_rate' => 1.180000,
-                'is_default' => false,
-                'is_active' => true,
-                'translations' => [
-                    'en' => 'UAE Dirham',
-                    'fr' => 'Dirham des Émirats',
-                    'ar' => 'درهم إماراتي',
-                ],
-            ],
+
         ];
 
         foreach ($currencies as $currencyData) {

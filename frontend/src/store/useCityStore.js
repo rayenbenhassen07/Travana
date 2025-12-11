@@ -6,11 +6,12 @@ export const useCityStore = create((set, get) => ({
   isLoading: false,
   error: null,
 
-  fetchCities: async () => {
+  fetchCities: async (lang = "en") => {
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get("/api/cities", {
+        params: { lang },
         headers: { Authorization: `Bearer ${token}` },
       });
       set({ cities: response.data, isLoading: false });
@@ -23,15 +24,13 @@ export const useCityStore = create((set, get) => ({
     }
   },
 
-  addCity: async (name) => {
+  addCity: async (cityData) => {
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "/api/cities",
-        { name },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.post("/api/cities", cityData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       set((state) => ({
         cities: [response.data, ...state.cities],
         isLoading: false,
@@ -47,15 +46,13 @@ export const useCityStore = create((set, get) => ({
     }
   },
 
-  updateCity: async (id, name) => {
+  updateCity: async (id, cityData) => {
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `/api/cities/${id}`,
-        { name },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.put(`/api/cities/${id}`, cityData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       set((state) => ({
         cities: state.cities.map((city) =>
           city.id === id ? response.data : city
