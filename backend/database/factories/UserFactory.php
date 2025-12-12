@@ -28,6 +28,15 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'phone' => fake()->phoneNumber(),
+            'date_of_birth' => fake()->date('Y-m-d', '-18 years'),
+            'profile_photo' => null,
+            'bio' => fake()->optional()->paragraph(),
+            'user_type' => fake()->randomElement(['user', 'admin']),
+            'is_verified' => fake()->boolean(80),
+            'is_active' => true,
+            'language_id' => \App\Models\Language::inRandomOrder()->first()?->id,
+            'currency_id' => \App\Models\Currency::inRandomOrder()->first()?->id,
             'remember_token' => Str::random(10),
         ];
     }
@@ -39,6 +48,46 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_type' => 'admin',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a regular user.
+     */
+    public function user(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_type' => 'user',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is verified.
+     */
+    public function verified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_verified' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
         ]);
     }
 }

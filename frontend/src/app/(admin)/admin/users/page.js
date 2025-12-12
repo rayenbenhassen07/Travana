@@ -14,6 +14,7 @@ import {
   FaEnvelope,
   FaLock,
   FaUserShield,
+  FaPhone,
 } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -31,7 +32,9 @@ const UsersPage = () => {
     name: "",
     email: "",
     password: "",
-    type: "user",
+    phone: "",
+    user_type: "user",
+    send_welcome_email: true,
   });
   const [formErrors, setFormErrors] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
@@ -102,7 +105,14 @@ const UsersPage = () => {
 
   // Reset form
   const resetForm = () => {
-    setFormData({ name: "", email: "", password: "", type: "user" });
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      phone: "",
+      user_type: "user",
+      send_welcome_email: true,
+    });
     setFormErrors({});
     setSelectedUser(null);
   };
@@ -118,12 +128,7 @@ const UsersPage = () => {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = "Email is invalid";
     }
-    if (!isEdit && !formData.password) {
-      errors.password = "Password is required";
-    }
-    if (!isEdit && formData.password && formData.password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
-    }
+    // Password validation only for edit mode when password is provided
     if (isEdit && formData.password && formData.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     }
@@ -144,7 +149,8 @@ const UsersPage = () => {
       name: user.name,
       email: user.email,
       password: "", // Don't pre-fill password
-      type: user.type,
+      phone: user.phone || "",
+      user_type: user.user_type,
     });
     setFormErrors({});
     setIsEditModalOpen(true);
@@ -163,8 +169,10 @@ const UsersPage = () => {
 
     setIsSubmitting(true);
     try {
-      await addUser(formData);
-      toast.success("User added successfully!");
+      // Don't send password field - backend will generate it
+      const { password, ...dataToSend } = formData;
+      await addUser(dataToSend);
+      toast.success("User created successfully! A welcome email has been sent with login credentials.");
       setIsAddModalOpen(false);
       resetForm();
     } catch (error) {
@@ -197,7 +205,8 @@ const UsersPage = () => {
       const updateData = {
         name: formData.name,
         email: formData.email,
-        type: formData.type,
+        phone: formData.phone,
+        user_type: formData.user_type,
       };
 
       if (formData.password) {
@@ -291,16 +300,16 @@ const UsersPage = () => {
       render: (row) => <span className="text-neutral-600">{row.email}</span>,
     },
     {
-      key: "type",
+      key: "user_type",
       label: "Type",
       sortable: true,
       render: (row) => (
         <span
           className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeBadge(
-            row.type
+            row.user_type
           )}`}
         >
-          {row.type === "admin" ? "Admin" : "User"}
+          {row.user_type === "admin" ? "Admin" : "User"}
         </span>
       ),
     },
@@ -309,7 +318,10 @@ const UsersPage = () => {
       label: "Activity",
       render: (row) => (
         <div className="text-sm text-neutral-600">
-          {row.listings?.length || 0} listings • {row.reservations?.length || 0}{" "}
+          {row.listings?.length || 0} listings •{" "}
+          {row.listingReservations?.length ||
+            row.listing_reservations?.length ||
+            0}{" "}
           reservations
         </div>
       ),
@@ -390,6 +402,33 @@ const UsersPage = () => {
         size="md"
       >
         <form onSubmit={handleSubmitAdd} className="space-y-4">
+          {/* Info Message */}
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+            <div className="flex items-start">
+              <div className="shrink-0">
+                <svg
+                  className="h-5 w-5 text-blue-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-blue-700 font-medium">
+                  A temporary password will be automatically generated and sent to the user via email.
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  The user will be advised to change their password after first login.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <Input
             label="Name"
             name="name"
@@ -416,24 +455,25 @@ const UsersPage = () => {
           />
 
           <Input
-            label="Password"
-            type="password"
-            name="password"
-            value={formData.password}
+            label="Phone"
+            type="tel"
+            name="phone"
+            value={formData.phone}
             onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
+              setFormData({ ...formData, phone: e.target.value })
             }
-            placeholder="Enter password (min 8 characters)"
-            error={formErrors.password}
-            required
-            icon={<FaLock />}
+            placeholder="+216 XX XXX XXX"
+            error={formErrors.phone}
+            icon={<FaPhone />}
           />
 
           <Select
             label="User Type"
-            name="type"
-            value={formData.type}
-            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+            name="user_type"
+            value={formData.user_type}
+            onChange={(e) =>
+              setFormData({ ...formData, user_type: e.target.value })
+            }
             options={userTypeOptions}
             required
           />
@@ -453,7 +493,7 @@ const UsersPage = () => {
               isLoading={isSubmitting}
               className="flex-1"
             >
-              Add User
+              Create User & Send Email
             </Button>
           </div>
         </form>
@@ -493,6 +533,19 @@ const UsersPage = () => {
           />
 
           <Input
+            label="Phone"
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+            placeholder="+216 XX XXX XXX"
+            error={formErrors.phone}
+            icon={<FaPhone />}
+          />
+
+          <Input
             label="Password"
             type="password"
             name="password"
@@ -507,9 +560,11 @@ const UsersPage = () => {
 
           <Select
             label="User Type"
-            name="type"
-            value={formData.type}
-            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+            name="user_type"
+            value={formData.user_type}
+            onChange={(e) =>
+              setFormData({ ...formData, user_type: e.target.value })
+            }
             options={userTypeOptions}
             required
           />

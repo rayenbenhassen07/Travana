@@ -17,20 +17,29 @@ class RegisteredUserController extends Controller
     {
         try {
             $validated = $request->validate([
-                'username' => ['required', 'string', 'max:255'],
+                'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-                'sex' => ['required', 'string', 'in:male,female'],
-                'phone' => ['required', 'string', 'max:50'],
+                'phone' => ['required', 'string', 'max:20'],
                 'password' => ['required', 'string', 'min:8'],
                 'password_confirmation' => ['required', 'string', 'same:password'],
+                'date_of_birth' => ['nullable', 'date'],
+                'bio' => ['nullable', 'string'],
+                'language_id' => ['nullable', 'exists:languages,id'],
+                'currency_id' => ['nullable', 'exists:currencies,id'],
             ]);
 
             $user = User::create([
-                'name' => $validated['username'],
+                'name' => $validated['name'],
                 'email' => $validated['email'],
-                'sex' => $validated['sex'],
                 'phone' => $validated['phone'],
                 'password' => Hash::make($validated['password']),
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'bio' => $validated['bio'] ?? null,
+                'user_type' => 'user',
+                'is_verified' => false,
+                'is_active' => true,
+                'language_id' => $validated['language_id'] ?? null,
+                'currency_id' => $validated['currency_id'] ?? null,
             ]);
 
             // Send verification email
@@ -45,10 +54,15 @@ class RegisteredUserController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'sex' => $user->sex,
                     'phone' => $user->phone,
-                    'type' => $user->type,
+                    'date_of_birth' => $user->date_of_birth,
+                    'bio' => $user->bio,
+                    'user_type' => $user->user_type,
+                    'is_verified' => $user->is_verified,
+                    'is_active' => $user->is_active,
                     'email_verified_at' => $user->email_verified_at,
+                    'language' => $user->preferredLanguage,
+                    'currency' => $user->preferredCurrency,
                 ],
                 'token' => $token,
             ], 201);

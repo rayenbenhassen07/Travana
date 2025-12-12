@@ -57,11 +57,9 @@ class CustomVerifyEmail extends Notification
             ]
         );
 
-        // Replace backend URL with frontend URL
-        $backendUrl = config('app.url');
-        $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
-        
-        return str_replace($backendUrl, $frontendUrl, $url);
+        // The URL should point to the backend API endpoint
+        // Backend will handle verification and redirect to frontend
+        return $url;
     }
 
     /**

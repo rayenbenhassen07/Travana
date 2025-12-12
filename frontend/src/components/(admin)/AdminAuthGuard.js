@@ -36,7 +36,7 @@ const AdminAuthGuard = ({ children }) => {
   // After loading, check if user is admin
   useEffect(() => {
     if (!isLoading && user) {
-      if (user.type !== "admin") {
+      if (user.user_type !== "admin") {
         // Not admin, redirect to home
         router.push("/");
       }
@@ -56,7 +56,7 @@ const AdminAuthGuard = ({ children }) => {
   }
 
   // Don't render if not admin
-  if (!user || user.type !== "admin") {
+  if (!user || user.user_type !== "admin") {
     return null;
   }
 

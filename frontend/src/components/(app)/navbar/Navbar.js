@@ -77,7 +77,7 @@ const Navbar = () => {
                   </div>
                 ) : user ? (
                   <>
-                    {user.type === "admin" ? (
+                    {user.user_type === "admin" ? (
                       <MobileMenuItem
                         label="Administration"
                         onClick={() => {

@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->command->info('📍 Cities seeded with multilingual support');
         $this->command->info('💰 Currencies seeded with multilingual support');
         $this->command->info('🌍 Languages: English (default), French, Arabic');
+        $this->command->info('👤 Users: Admin and Regular User created');
     }
 }

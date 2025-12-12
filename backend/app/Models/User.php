@@ -23,10 +23,18 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
-        'sex',
-        'phone',
         'password',
-        'type',
+        'phone',
+        'date_of_birth',
+        'profile_photo',
+        'bio',
+        'user_type',
+        'is_verified',
+        'is_active',
+        'language_id',
+        'currency_id',
+        'last_login_at',
+        'password_changed_at',
     ];
 
     /**
@@ -49,12 +57,54 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
+            'is_verified' => 'boolean',
+            'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
+            'password_changed_at' => 'datetime',
         ];
     }
 
     public function blogs()
     {
         return $this->hasMany(Blog::class, 'author_id');
+    }
+
+    public function preferredLanguage()
+    {
+        return $this->belongsTo(Language::class, 'language_id');
+    }
+
+    public function preferredCurrency()
+    {
+        return $this->belongsTo(Currency::class, 'currency_id');
+    }
+
+    // Helper methods
+    public function isAdmin()
+    {
+        return $this->user_type === 'admin';
+    }
+
+    public function isUser()
+    {
+        return $this->user_type === 'user';
+    }
+
+    public function updateLastLogin()
+    {
+        $this->update(['last_login_at' => now()]);
+    }
+
+    public function needsPasswordChange()
+    {
+        // User needs to change password if they've never changed it
+        return is_null($this->password_changed_at);
+    }
+
+    public function markPasswordAsChanged()
+    {
+        $this->update(['password_changed_at' => now()]);
     }
 
     /**

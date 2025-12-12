@@ -17,6 +17,9 @@ class AuthenticatedSessionController extends Controller
 
             $user = $request->user();
             
+            // Update last login time
+            $user->updateLastLogin();
+            
             // Create token for API authentication
             $token = $user->createToken('auth-token')->plainTextToken;
 
@@ -26,10 +29,17 @@ class AuthenticatedSessionController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'sex' => $user->sex,
                     'phone' => $user->phone,
-                    'type' => $user->type,
+                    'date_of_birth' => $user->date_of_birth,
+                    'profile_photo' => $user->profile_photo,
+                    'bio' => $user->bio,
+                    'user_type' => $user->user_type,
+                    'is_verified' => $user->is_verified,
+                    'is_active' => $user->is_active,
                     'email_verified_at' => $user->email_verified_at,
+                    'last_login_at' => $user->last_login_at,
+                    'language' => $user->preferredLanguage,
+                    'currency' => $user->preferredCurrency,
                 ],
                 'token' => $token,
             ]);
@@ -64,10 +74,17 @@ class AuthenticatedSessionController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'sex' => $user->sex,
             'phone' => $user->phone,
-            'type' => $user->type,
+            'date_of_birth' => $user->date_of_birth,
+            'profile_photo' => $user->profile_photo,
+            'bio' => $user->bio,
+            'user_type' => $user->user_type,
+            'is_verified' => $user->is_verified,
+            'is_active' => $user->is_active,
             'email_verified_at' => $user->email_verified_at,
+            'last_login_at' => $user->last_login_at,
+            'language' => $user->preferredLanguage,
+            'currency' => $user->preferredCurrency,
         ]);
     }
 }
