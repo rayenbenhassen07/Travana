@@ -192,7 +192,11 @@ const CurrenciesPage = () => {
             <div className="flex items-center gap-2">
               <span className="font-semibold text-neutral-800">{row.code}</span>
               {row.is_default && (
-                <FaStar className="text-yellow-500" size={14} title="Default" />
+                <FaStar
+                  className="text-neutral-500"
+                  size={14}
+                  title="Default"
+                />
               )}
             </div>
             <div className="text-xs text-neutral-500">{row.name}</div>
@@ -217,7 +221,7 @@ const CurrenciesPage = () => {
         <span
           className={`px-3 py-1 rounded-full text-sm font-medium ${
             row.is_active
-              ? "bg-green-100 text-green-700"
+              ? "bg-orange-100 text-orange-700"
               : "bg-neutral-100 text-neutral-500"
           }`}
         >

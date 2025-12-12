@@ -224,7 +224,7 @@ const CitiesPage = () => {
         <span
           className={`px-3 py-1 rounded-full text-sm font-medium ${
             row.is_active
-              ? "bg-green-100 text-green-700"
+              ? "bg-orange-100 text-orange-700"
               : "bg-neutral-100 text-neutral-500"
           }`}
         >

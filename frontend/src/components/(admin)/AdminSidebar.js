@@ -27,6 +27,7 @@ import {
 } from "react-icons/fa";
 import { MdCategory, MdTag } from "react-icons/md";
 import Image from "next/image";
+import Logo from "../(app)/navbar/Logo";
 
 const AdminSidebar = ({
   isCollapsed,
@@ -79,23 +80,29 @@ const AdminSidebar = ({
       ],
     },
     {
-      title: "Cities",
-      icon: <FaMapMarkerAlt />,
-      href: "/admin/cities",
-      badge: null,
+      title: "Settings",
+      icon: <FaCog />,
+      href: "/admin/settings",
+      hasSubmenu: true,
+      submenu: [
+        {
+          title: "Cities",
+          icon: <FaMapMarkerAlt />,
+          href: "/admin/cities",
+        },
+        {
+          title: "Languages",
+          icon: <FaLanguage />,
+          href: "/admin/languages",
+        },
+        {
+          title: "Currencies",
+          icon: <FaDollarSign />,
+          href: "/admin/currencies",
+        },
+      ],
     },
-    {
-      title: "Languages",
-      icon: <FaLanguage />,
-      href: "/admin/languages",
-      badge: null,
-    },
-    {
-      title: "Currencies",
-      icon: <FaDollarSign />,
-      href: "/admin/currencies",
-      badge: null,
-    },
+
     {
       title: "Users",
       icon: <FaUsers />,
@@ -170,13 +177,8 @@ const AdminSidebar = ({
         <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-200">
           {!isCollapsed && (
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-xl">T</span>
-              </div>
               <div className="flex flex-col justify-center">
-                <h1 className="text-lg font-bold text-neutral-800 leading-tight">
-                  Travana.tn
-                </h1>
+                <Logo />
                 <p className="text-xs text-neutral-500 leading-tight">
                   Admin Panel
                 </p>
