@@ -29,11 +29,6 @@ class Currency extends Model
         return $this->hasMany(CurrencyTranslation::class);
     }
 
-    public function listingReservations()
-    {
-        return $this->hasMany(ListingReservation::class);
-    }
-
     // Helper method to get translation for a specific language
     public function translation($languageCode = 'en')
     {

@@ -3,12 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CityController;
-use App\Http\Controllers\Api\AlertController;
-use App\Http\Controllers\Api\FacilityController;
-use App\Http\Controllers\Api\ListingController;
-use App\Http\Controllers\Api\ListingReservationController;
 use App\Http\Controllers\Api\CurrencyController;
 use App\Http\Controllers\Api\LanguageController;
 use App\Http\Controllers\Api\UserController;
@@ -22,14 +17,6 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-// Categories
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{category}', [CategoryController::class, 'show']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::post('/categories/{category}', [CategoryController::class, 'update']); // For file upload with _method
-Route::put('/categories/{category}', [CategoryController::class, 'update']);
-Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
 // Languages (Public routes - for getting available languages)
 Route::get('/languages', [LanguageController::class, 'index']); // Active languages only
@@ -57,38 +44,6 @@ Route::get('/users/{id}', [UserController::class, 'show']);
 Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{id}', [UserController::class, 'update']);
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
-
-// Alerts
-Route::get('/alerts', [AlertController::class, 'index']);
-Route::get('/alerts/{alert}', [AlertController::class, 'show']);
-Route::post('/alerts', [AlertController::class, 'store']);
-Route::post('/alerts/{alert}', [AlertController::class, 'update']); // For file upload with _method
-Route::put('/alerts/{alert}', [AlertController::class, 'update']);
-Route::delete('/alerts/{alert}', [AlertController::class, 'destroy']);
-
-// Facilities
-Route::get('/facilities', [FacilityController::class, 'index']);
-Route::get('/facilities/{facility}', [FacilityController::class, 'show']);
-Route::post('/facilities', [FacilityController::class, 'store']);
-Route::post('/facilities/{facility}', [FacilityController::class, 'update']); // For file upload with _method
-Route::put('/facilities/{facility}', [FacilityController::class, 'update']);
-Route::delete('/facilities/{facility}', [FacilityController::class, 'destroy']);
-
-// Listings
-Route::get('/listings', [ListingController::class, 'index']);
-Route::get('/listings/{listing}', [ListingController::class, 'show']);
-Route::post('/listings', [ListingController::class, 'store']);
-Route::post('/listings/{listing}', [ListingController::class, 'update']); // For file upload with _method
-Route::put('/listings/{listing}', [ListingController::class, 'update']);
-Route::delete('/listings/{listing}', [ListingController::class, 'destroy']);
-
-// Listing Reservations
-Route::get('/listing-reservations', [ListingReservationController::class, 'index']);
-Route::get('/listing-reservations/ref/{ref}', [ListingReservationController::class, 'showByRef']);
-Route::get('/listing-reservations/{reservation}', [ListingReservationController::class, 'show']);
-Route::post('/listing-reservations', [ListingReservationController::class, 'store']);
-Route::put('/listing-reservations/{reservation}', [ListingReservationController::class, 'update']);
-Route::delete('/listing-reservations/{reservation}', [ListingReservationController::class, 'destroy']);
 
 // Blog Categories (Public routes)
 Route::get('/blog-categories', [BlogCategoryController::class, 'index']);

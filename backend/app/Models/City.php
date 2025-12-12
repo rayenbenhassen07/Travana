@@ -28,11 +28,6 @@ class City extends Model
         return $this->hasMany(CityTranslation::class);
     }
 
-    public function listings()
-    {
-        return $this->hasMany(Listing::class);
-    }
-
     // Helper method to get translation for a specific language
     public function translation($languageCode = 'en')
     {
