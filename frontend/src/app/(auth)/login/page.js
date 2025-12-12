@@ -7,15 +7,12 @@ import Link from "next/link";
 import useAuthStore from "@/store/useAuthStore";
 import { Input } from "@/components/shared/inputs/Input";
 import { Button } from "@/components/shared/inputs/Button";
-import VerifyEmailNotice from "@/components/(auth)/VerifyEmailNotice";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [showVerificationNotice, setShowVerificationNotice] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
   const login = useAuthStore((s) => s.login);
   const user = useAuthStore((s) => s.user);
   const hydrateAuth = useAuthStore((s) => s.hydrateAuth);
@@ -45,8 +42,9 @@ export default function LoginPage() {
     if (res.success) {
       // Check if email is verified
       if (res.needsVerification || !res.verified) {
-        setShowVerificationNotice(true);
-        setUserEmail(res.user.email);
+        // Redirect to check-email page
+        toast.info("Veuillez vérifier votre email avant de vous connecter.");
+        router.push(`/check-email?email=${encodeURIComponent(res.user.email)}`);
       } else {
         // Email verified - redirect to home
         toast.success("Connexion réussie !");
@@ -68,64 +66,55 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {showVerificationNotice ? (
-        <VerifyEmailNotice
-          email={userEmail}
-          onDismiss={() => setShowVerificationNotice(false)}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input
+          label="Email"
+          type="email"
+          icon={<FaEnvelope />}
+          placeholder="votre@email.com"
+          {...register("email", { required: "Email requis" })}
+          error={errors.email?.message}
+          required
         />
-      ) : (
-        <>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Input
-              label="Email"
-              type="email"
-              icon={<FaEnvelope />}
-              placeholder="votre@email.com"
-              {...register("email", { required: "Email requis" })}
-              error={errors.email?.message}
-              required
-            />
 
-            <Input
-              label="Mot de passe"
-              type="password"
-              icon={<FaLock />}
-              placeholder="••••••••"
-              {...register("password", { required: "Mot de passe requis" })}
-              error={errors.password?.message}
-              required
-            />
+        <Input
+          label="Mot de passe"
+          type="password"
+          icon={<FaLock />}
+          placeholder="••••••••"
+          {...register("password", { required: "Mot de passe requis" })}
+          error={errors.password?.message}
+          required
+        />
 
-            <div className="text-right">
-              <Link
-                href="/forgot-password"
-                className="text-xs text-primary-600 hover:underline"
-              >
-                Mot de passe oublié ?
-              </Link>
-            </div>
+        <div className="text-right">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-primary-600 hover:underline"
+          >
+            Mot de passe oublié ?
+          </Link>
+        </div>
 
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              disabled={isLoading}
-              className="w-full"
-            >
-              {isLoading ? "Connexion..." : "Se connecter"}
-            </Button>
-          </form>
+        <Button
+          type="submit"
+          isLoading={isLoading}
+          disabled={isLoading}
+          className="w-full"
+        >
+          {isLoading ? "Connexion..." : "Se connecter"}
+        </Button>
+      </form>
 
-          <div className="text-center text-sm">
-            <span className="text-neutral-600">Pas encore de compte ? </span>
-            <Link
-              href="/register"
-              className="font-medium text-primary-600 hover:underline"
-            >
-              S'inscrire
-            </Link>
-          </div>
-        </>
-      )}
+      <div className="text-center text-sm">
+        <span className="text-neutral-600">Pas encore de compte ? </span>
+        <Link
+          href="/register"
+          className="font-medium text-primary-600 hover:underline"
+        >
+          S'inscrire
+        </Link>
+      </div>
     </div>
   );
 }

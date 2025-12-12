@@ -16,11 +16,13 @@ class DatabaseSeeder extends Seeder
             LanguageSeeder::class,
             CitySeeder::class,
             CurrencySeeder::class,
+            UserSeeder::class,
         ]);
         
         $this->command->info('✅ All seeders completed successfully!');
         $this->command->info('📍 Cities seeded with multilingual support');
         $this->command->info('💰 Currencies seeded with multilingual support');
         $this->command->info('🌍 Languages: English (default), French, Arabic');
+        $this->command->info('👤 Users: Admin and Regular User created');
     }
 }

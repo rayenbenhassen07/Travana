@@ -1,14 +1,13 @@
 // components/UserMenu.js
 "use client";
 
-import { AiOutlineMenu } from "react-icons/ai";
 import Avatar from "@/components/Avatar";
 import { useCallback, useEffect, useState } from "react";
 import { MenuItem } from "./MenuItem";
 import InlineLoader from "@/components/loading/InlineLoader";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
-import { FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
 
 const UserMenu = () => {
   const router = useRouter();
@@ -102,7 +101,7 @@ const UserMenu = () => {
                   </div>
 
                   {/* Admin/Client Space */}
-                  {user.type === "admin" ? (
+                  {user.user_type === "admin" ? (
                     <MenuItem
                       label="Administration"
                       onClick={() => {

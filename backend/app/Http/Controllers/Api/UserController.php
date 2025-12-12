@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\NewUserWelcome;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -13,7 +16,13 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::with(['listings', 'reservations'])->get();
+            $users = User::with(['listings', 'listingReservations'])->get();
+            
+            // Add needs_password_change flag
+            $users->each(function ($user) {
+                $user->needs_password_change = $user->needsPasswordChange();
+            });
+            
             return response()->json($users);
         } catch (\Exception $e) {
             return response()->json([
@@ -29,18 +38,50 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
-                'password' => 'required|string|min:8',
-                'type' => ['required', Rule::in(['user', 'admin'])],
+                'phone' => 'nullable|string|max:20',
+                'date_of_birth' => 'nullable|date',
+                'profile_photo' => 'nullable|string|max:255',
+                'bio' => 'nullable|string',
+                'user_type' => ['required', Rule::in(['user', 'admin'])],
+                'is_verified' => 'boolean',
+                'is_active' => 'boolean',
+                'language_id' => 'nullable|exists:languages,id',
+                'currency_id' => 'nullable|exists:currencies,id',
+                'send_welcome_email' => 'boolean',
             ]);
+
+            // Generate a random temporary password
+            $temporaryPassword = Str::random(12);
 
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'type' => $request->type,
+                'password' => Hash::make($temporaryPassword),
+                'phone' => $request->phone,
+                'date_of_birth' => $request->date_of_birth,
+                'profile_photo' => $request->profile_photo,
+                'bio' => $request->bio,
+                'user_type' => $request->user_type,
+                'is_verified' => $request->is_verified ?? false,
+                'is_active' => $request->is_active ?? true,
+                'language_id' => $request->language_id,
+                'currency_id' => $request->currency_id,
             ]);
 
-            return response()->json($user, 201);
+            // Send welcome email with temporary password
+            if ($request->get('send_welcome_email', true)) {
+                try {
+                    Mail::to($user->email)->send(new NewUserWelcome($user, $temporaryPassword));
+                } catch (\Exception $mailException) {
+                    // Log the error but don't fail the user creation
+                    \Log::error('Failed to send welcome email to ' . $user->email . ': ' . $mailException->getMessage());
+                }
+            }
+
+            return response()->json([
+                'user' => $user,
+                'message' => 'User created successfully. A welcome email has been sent with login credentials.',
+            ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -57,7 +98,8 @@ class UserController extends Controller
     public function show($id)
     {
         try {
-            $user = User::with(['listings', 'reservations'])->findOrFail($id);
+            $user = User::with(['listings', 'listingReservations'])->findOrFail($id);
+            $user->needs_password_change = $user->needsPasswordChange();
             return response()->json($user);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
@@ -80,14 +122,35 @@ class UserController extends Controller
                 'name' => 'sometimes|required|string|max:255',
                 'email' => 'sometimes|required|email|unique:users,email,' . $id,
                 'password' => 'nullable|string|min:8',
-                'type' => ['sometimes', Rule::in(['user', 'admin'])],
+                'phone' => 'nullable|string|max:20',
+                'date_of_birth' => 'nullable|date',
+                'profile_photo' => 'nullable|string|max:255',
+                'bio' => 'nullable|string',
+                'user_type' => ['sometimes', Rule::in(['user', 'admin'])],
+                'is_verified' => 'boolean',
+                'is_active' => 'boolean',
+                'language_id' => 'nullable|exists:languages,id',
+                'currency_id' => 'nullable|exists:currencies,id',
             ]);
 
-            $data = $request->only(['name', 'email', 'type']);
+            $data = $request->only([
+                'name', 
+                'email', 
+                'phone', 
+                'date_of_birth', 
+                'profile_photo', 
+                'bio', 
+                'user_type',
+                'is_verified',
+                'is_active',
+                'language_id',
+                'currency_id'
+            ]);
             
             // Only update password if provided
             if ($request->filled('password')) {
                 $data['password'] = Hash::make($request->password);
+                $data['password_changed_at'] = now();
             }
 
             $user->update($data);
@@ -124,7 +187,7 @@ class UserController extends Controller
             
             // Check if user has listings or reservations
             $listingsCount = $user->listings()->count();
-            $reservationsCount = $user->reservations()->count();
+            $reservationsCount = $user->listingReservations()->count();
             
             if ($listingsCount > 0 || $reservationsCount > 0) {
                 return response()->json([

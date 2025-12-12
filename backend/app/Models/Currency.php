@@ -34,6 +34,11 @@ class Currency extends Model
         return $this->hasMany(ListingReservation::class);
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class, 'currency_id');
+    }
+
     // Helper method to get translation for a specific language
     public function translation($languageCode = 'en')
     {

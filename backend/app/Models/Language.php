@@ -31,4 +31,9 @@ class Language extends Model
     {
         return $this->hasMany(CurrencyTranslation::class);
     }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'language_id');
+    }
 }

@@ -151,3 +151,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/admin/comments', [BlogCommentController::class, 'all']);
     Route::patch('/admin/comments/{id}/status', [BlogCommentController::class, 'updateStatus']);
 });
+
+// Include authentication routes
+require __DIR__.'/auth.php';
