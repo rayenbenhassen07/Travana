@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             LanguageSeeder::class,
             CitySeeder::class,
             CurrencySeeder::class,
+            UserSeeder::class,
         ]);
         
         $this->command->info('✅ All seeders completed successfully!');
