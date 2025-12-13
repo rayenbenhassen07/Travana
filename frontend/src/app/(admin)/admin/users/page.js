@@ -1,26 +1,20 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useUserStore } from "@/store/useUserStore";
+import { useLanguageStore } from "@/store/useLanguageStore";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
+import UserModal from "@/components/(admin)/modals/UserModal";
 import Table from "@/components/shared/Table";
 import Pagination from "@/components/shared/Pagination";
-import Modal from "@/components/shared/Modal";
 import DeleteConfirmation from "@/components/shared/DeleteConfirmation";
-import { Input, Select, Button } from "@/components/shared/inputs";
-import {
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaUser,
-  FaEnvelope,
-  FaLock,
-  FaUserShield,
-  FaPhone,
-} from "react-icons/fa";
+import { Input, Button } from "@/components/shared/inputs";
+import { FaPlus, FaEdit, FaTrash, FaUser } from "react-icons/fa";
 import { toast } from "sonner";
 
 const UsersPage = () => {
-  const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser } =
-    useUserStore();
+  const { users, isLoading, fetchUsers, deleteUser } = useUserStore();
+  const { fetchLanguages } = useLanguageStore();
+  const { fetchCurrencies } = useCurrencyStore();
 
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -28,15 +22,6 @@ const UsersPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Form states
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-    user_type: "user",
-    send_welcome_email: true,
-  });
-  const [formErrors, setFormErrors] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,10 +38,12 @@ const UsersPage = () => {
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch users on mount
+  // Fetch users, languages, and currencies on mount
   useEffect(() => {
     fetchUsers();
-  }, [fetchUsers]);
+    fetchLanguages();
+    fetchCurrencies();
+  }, [fetchUsers, fetchLanguages, fetchCurrencies]);
 
   // Handle sort
   const handleSort = (key) => {
@@ -103,56 +90,15 @@ const UsersPage = () => {
     currentPage * itemsPerPage
   );
 
-  // Reset form
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      email: "",
-      password: "",
-      phone: "",
-      user_type: "user",
-      send_welcome_email: true,
-    });
-    setFormErrors({});
-    setSelectedUser(null);
-  };
-
-  // Validate form
-  const validateForm = (isEdit = false) => {
-    const errors = {};
-    if (!formData.name.trim()) {
-      errors.name = "Name is required";
-    }
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email is invalid";
-    }
-    // Password validation only for edit mode when password is provided
-    if (isEdit && formData.password && formData.password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
-    }
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   // Handle add
   const handleAdd = () => {
-    resetForm();
+    setSelectedUser(null);
     setIsAddModalOpen(true);
   };
 
   // Handle edit
   const handleEdit = (user) => {
     setSelectedUser(user);
-    setFormData({
-      name: user.name,
-      email: user.email,
-      password: "", // Don't pre-fill password
-      phone: user.phone || "",
-      user_type: user.user_type,
-    });
-    setFormErrors({});
     setIsEditModalOpen(true);
   };
 
@@ -162,78 +108,17 @@ const UsersPage = () => {
     setIsDeleteModalOpen(true);
   };
 
-  // Submit add
-  const handleSubmitAdd = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-    try {
-      // Don't send password field - backend will generate it
-      const { password, ...dataToSend } = formData;
-      await addUser(dataToSend);
-      toast.success("User created successfully! A welcome email has been sent with login credentials.");
-      setIsAddModalOpen(false);
-      resetForm();
-    } catch (error) {
-      const errorData = error.response?.data;
-
-      if (errorData?.errors) {
-        const errors = {};
-        Object.keys(errorData.errors).forEach((key) => {
-          errors[key] = errorData.errors[key][0];
-        });
-        setFormErrors(errors);
-        const firstError = Object.values(errorData.errors)[0][0];
-        toast.error(firstError);
-      } else {
-        toast.error(errorData?.message || "Failed to add user");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  // Handle success callbacks
+  const handleAddSuccess = (result) => {
+    toast.success("User added successfully!");
+    setIsAddModalOpen(false);
+    fetchUsers(); // Refresh the list
   };
 
-  // Submit edit
-  const handleSubmitEdit = async (e) => {
-    e.preventDefault();
-    if (!validateForm(true)) return;
-
-    setIsSubmitting(true);
-    try {
-      // Only include password if it's been changed
-      const updateData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        user_type: formData.user_type,
-      };
-
-      if (formData.password) {
-        updateData.password = formData.password;
-      }
-
-      await updateUser(selectedUser.id, updateData);
-      toast.success("User updated successfully!");
-      setIsEditModalOpen(false);
-      resetForm();
-    } catch (error) {
-      const errorData = error.response?.data;
-
-      if (errorData?.errors) {
-        const errors = {};
-        Object.keys(errorData.errors).forEach((key) => {
-          errors[key] = errorData.errors[key][0];
-        });
-        setFormErrors(errors);
-        const firstError = Object.values(errorData.errors)[0][0];
-        toast.error(firstError);
-      } else {
-        toast.error(errorData?.message || "Failed to update user");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleEditSuccess = (result) => {
+    toast.success("User updated successfully!");
+    setIsEditModalOpen(false);
+    fetchUsers(); // Refresh the list
   };
 
   // Confirm delete
@@ -244,9 +129,9 @@ const UsersPage = () => {
       toast.success("User deleted successfully!");
       setIsDeleteModalOpen(false);
       setSelectedUser(null);
+      fetchUsers(); // Refresh the list
     } catch (error) {
       const errorData = error.response?.data;
-
       if (errorData?.error) {
         toast.error(errorData.error);
       } else {
@@ -395,200 +280,21 @@ const UsersPage = () => {
       )}
 
       {/* Add Modal */}
-      <Modal
+      <UserModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Add New User"
-        size="md"
-      >
-        <form onSubmit={handleSubmitAdd} className="space-y-4">
-          {/* Info Message */}
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-            <div className="flex items-start">
-              <div className="shrink-0">
-                <svg
-                  className="h-5 w-5 text-blue-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-blue-700 font-medium">
-                  A temporary password will be automatically generated and sent to the user via email.
-                </p>
-                <p className="text-xs text-blue-600 mt-1">
-                  The user will be advised to change their password after first login.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <Input
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Enter user name"
-            error={formErrors.name}
-            required
-            icon={<FaUser />}
-          />
-
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            placeholder="Enter email address"
-            error={formErrors.email}
-            required
-            icon={<FaEnvelope />}
-          />
-
-          <Input
-            label="Phone"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            placeholder="+216 XX XXX XXX"
-            error={formErrors.phone}
-            icon={<FaPhone />}
-          />
-
-          <Select
-            label="User Type"
-            name="user_type"
-            value={formData.user_type}
-            onChange={(e) =>
-              setFormData({ ...formData, user_type: e.target.value })
-            }
-            options={userTypeOptions}
-            required
-          />
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsAddModalOpen(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isSubmitting}
-              className="flex-1"
-            >
-              Create User & Send Email
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        onSuccess={handleAddSuccess}
+        mode="add"
+      />
 
       {/* Edit Modal */}
-      <Modal
+      <UserModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Edit User"
-        size="md"
-      >
-        <form onSubmit={handleSubmitEdit} className="space-y-4">
-          <Input
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Enter user name"
-            error={formErrors.name}
-            required
-            icon={<FaUser />}
-          />
-
-          <Input
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            placeholder="Enter email address"
-            error={formErrors.email}
-            required
-            icon={<FaEnvelope />}
-          />
-
-          <Input
-            label="Phone"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            placeholder="+216 XX XXX XXX"
-            error={formErrors.phone}
-            icon={<FaPhone />}
-          />
-
-          <Input
-            label="Password"
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            placeholder="Leave blank to keep current password"
-            error={formErrors.password}
-            icon={<FaLock />}
-          />
-
-          <Select
-            label="User Type"
-            name="user_type"
-            value={formData.user_type}
-            onChange={(e) =>
-              setFormData({ ...formData, user_type: e.target.value })
-            }
-            options={userTypeOptions}
-            required
-          />
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsEditModalOpen(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isSubmitting}
-              className="flex-1"
-            >
-              Update User
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        onSuccess={handleEditSuccess}
+        mode="edit"
+        user={selectedUser}
+      />
 
       {/* Delete Confirmation */}
       <DeleteConfirmation

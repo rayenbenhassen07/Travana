@@ -34,7 +34,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'language_id',
         'currency_id',
         'last_login_at',
-        'password_changed_at',
     ];
 
     /**
@@ -61,7 +60,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_verified' => 'boolean',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
-            'password_changed_at' => 'datetime',
         ];
     }
 
@@ -104,17 +102,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function updateLastLogin()
     {
         $this->update(['last_login_at' => now()]);
-    }
-
-    public function needsPasswordChange()
-    {
-        // User needs to change password if they've never changed it
-        return is_null($this->password_changed_at);
-    }
-
-    public function markPasswordAsChanged()
-    {
-        $this->update(['password_changed_at' => now()]);
     }
 
     /**

@@ -1,203 +1,95 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Vérification de votre email</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background-color: #fafafa;
-            padding: 20px;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
-        }
-        .email-container {
+            color: #333;
             max-width: 600px;
             margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
         .header {
-            background-color: #f97316;
-            padding: 48px 32px;
+            background-color: #f8f9fa;
+            padding: 20px;
             text-align: center;
-            color: #ffffff;
-        }
-        .header h1 {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .header p {
-            font-size: 15px;
-            opacity: 0.95;
-        }
-        .icon {
-            width: 64px;
-            height: 64px;
-            background-color: rgba(255, 255, 255, 0.25);
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 5px;
             margin-bottom: 20px;
-            font-size: 36px;
         }
         .content {
-            padding: 40px 32px;
-        }
-        .greeting {
-            font-size: 18px;
-            color: #171717;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-        .message {
-            color: #525252;
-            margin-bottom: 28px;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-        .button-container {
-            text-align: center;
-            margin: 32px 0;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
         }
         .button {
             display: inline-block;
-            background-color: #f97316;
-            color: #ffffff;
-            text-decoration: none;
-            padding: 16px 40px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-        }
-        .info-box {
-            background-color: #fef3c7;
-            border-left: 4px solid #fbbf24;
-            border-radius: 6px;
-            padding: 16px 20px;
-            margin: 28px 0;
-        }
-        .info-box-text {
-            font-size: 13px;
-            color: #78350f;
-            line-height: 1.6;
-        }
-        .alternative-link {
-            margin-top: 28px;
-            padding: 20px;
-            background-color: #fafafa;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #525252;
-            border: 1px solid #e5e5e5;
-        }
-        .alternative-link-label {
-            font-weight: 600;
-            color: #171717;
-            margin-bottom: 12px;
-        }
-        .link-text {
-            word-break: break-all;
-            color: #f97316;
-            background-color: #fff;
-            padding: 12px;
+            padding: 12px 24px;
+            background-color: #FFA500;
+            color: #fff !important;
+            text-decoration: none !important;
             border-radius: 4px;
-            border: 1px solid #fed7aa;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #e69702;
+            color: #fff !important;
+        }
+        .button:visited {
+            color: #fff !important;
+        }
+        .button:active {
+            color: #fff !important;
         }
         .footer {
-            background-color: #fafafa;
-            padding: 32px;
+            margin-top: 20px;
+            padding: 20px;
             text-align: center;
-            color: #737373;
-            font-size: 13px;
+            color: #6c757d;
+            font-size: 14px;
         }
-        .footer-logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #f97316;
-            margin-bottom: 12px;
-        }
-        .divider {
-            height: 1px;
-            background-color: #e5e5e5;
-            margin: 20px 0;
-        }
-        @media only screen and (max-width: 600px) {
-            .content {
-                padding: 32px 24px;
-            }
-            .header {
-                padding: 40px 24px;
-            }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 15px 0;
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="icon">✉️</div>
-            <h1>Vérifiez votre email</h1>
-            <p>Bienvenue sur Travana</p>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <p class="greeting">Bonjour,</p>
-            
-            <p class="message">
-                Merci de vous être inscrit sur Travana. Pour finaliser votre inscription, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous.
-            </p>
-
-            <!-- Call to Action -->
-            <div class="button-container">
-                <a href="{{ $verificationUrl }}" class="button">
-                    Vérifier mon email
-                </a>
-            </div>
-
-            <!-- Info Box -->
-            <div class="info-box">
-                <div class="info-box-text">
-                    ⏱️ Ce lien expirera dans <strong>60 minutes</strong>. Si vous n'avez pas créé de compte, ignorez cet email.
-                </div>
-            </div>
-
-            <!-- Alternative Link -->
-            <div class="alternative-link">
-                <div class="alternative-link-label">
-                    Si le bouton ne fonctionne pas, copiez ce lien :
-                </div>
-                <div class="link-text">{{ $verificationUrl }}</div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-logo">Travana</div>
-            <p style="margin-bottom: 8px;">Votre plateforme de réservation</p>
-            <div class="divider"></div>
-            <p style="margin-top: 16px;">
-                © {{ date('Y') }} Travana. Tous droits réservés.
-            </p>
-        </div>
+    <div class="header">
+        <h1>Vérification de votre email - {{ config('app.name') }}</h1>
     </div>
-</body>
-</html>
-        .content {
-            padding: 40px 30px;
-        }
+
+    <div class="content">
+        <h2>Bonjour,</h2>
+        
+        <p>Merci de vous être inscrit sur {{ config('app.name') }}. Pour finaliser votre inscription et activer votre compte, veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous :</p>
+
+        <div style="text-align: center;">
+            <a href="{{ $verificationUrl }}" class="button" style="color: #fff !important; text-decoration: none !important;">Vérifier mon email</a>
+        </div>
+        
+        <div class="warning">
+            <strong>Important :</strong> Ce lien expirera dans 60 minutes. Veuillez l'utiliser dès que possible.
+        </div>
+        
+        <p>Si vous n'avez pas créé de compte sur {{ config('app.name') }}, veuillez ignorer cet email.</p>
+        
+        <p>Cordialement,<br>L'équipe {{ config('app.name') }}</p>
+    </div>
+
+    <div class="footer">
+        <p>Si vous avez des difficultés à cliquer sur le bouton, copiez et collez l'URL ci-dessous dans votre navigateur web :</p>
+        <p style="word-break: break-all;">{{ $verificationUrl }}</p>
+    </div>
         .greeting {
             font-size: 16px;
             color: #1e293b;
@@ -305,37 +197,5 @@
             </p>
 
             <!-- Call to Action -->
-            <div class="button-container">
-                <a href="{{ $verificationUrl }}" class="button">
-                    Vérifier mon email
-                </a>
-            </div>
-
-            <!-- Info Box -->
-            <div class="info-box">
-                <div class="info-box-text">
-                    ⏱️ Ce lien expirera dans <strong>60 minutes</strong>. Si vous n'avez pas créé de compte, ignorez cet email.
-                </div>
-            </div>
-
-            <!-- Alternative Link -->
-            <div class="alternative-link">
-                <div class="alternative-link-label">
-                    Si le bouton ne fonctionne pas, copiez ce lien :
-                </div>
-                <div class="link-text">{{ $verificationUrl }}</div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-logo">Travana</div>
-            <p style="margin-bottom: 12px;">Votre plateforme de réservation</p>
-            <div class="divider"></div>
-            <p style="margin-top: 16px;">
-                © {{ date('Y') }} Travana. Tous droits réservés.
-            </p>
-        </div>
-    </div>
 </body>
 </html>

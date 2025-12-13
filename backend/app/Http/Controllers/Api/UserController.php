@@ -43,16 +43,15 @@ class UserController extends Controller
                 'profile_photo' => 'nullable|string|max:255',
                 'bio' => 'nullable|string',
                 'user_type' => ['required', Rule::in(['user', 'admin'])],
-                'is_verified' => 'boolean',
                 'is_active' => 'boolean',
                 'language_id' => 'nullable|exists:languages,id',
                 'currency_id' => 'nullable|exists:currencies,id',
-                'send_welcome_email' => 'boolean',
             ]);
 
-            // Generate a random temporary password
+            // Generate a temporary password
             $temporaryPassword = Str::random(12);
 
+            // Create the user with auto-verified email
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -62,25 +61,24 @@ class UserController extends Controller
                 'profile_photo' => $request->profile_photo,
                 'bio' => $request->bio,
                 'user_type' => $request->user_type,
-                'is_verified' => $request->is_verified ?? false,
+                'email_verified_at' => now(), // Auto-verify email
+                'is_verified' => true, // Auto-verify user
                 'is_active' => $request->is_active ?? true,
                 'language_id' => $request->language_id,
                 'currency_id' => $request->currency_id,
             ]);
 
-            // Send welcome email with temporary password
-            if ($request->get('send_welcome_email', true)) {
-                try {
-                    Mail::to($user->email)->send(new NewUserWelcome($user, $temporaryPassword));
-                } catch (\Exception $mailException) {
-                    // Log the error but don't fail the user creation
-                    \Log::error('Failed to send welcome email to ' . $user->email . ': ' . $mailException->getMessage());
-                }
+            // Send welcome email with temporary password and reset link
+            try {
+                Mail::to($user->email)->send(new NewUserWelcome($user, $temporaryPassword));
+            } catch (\Exception $e) {
+                // Log the error but don't fail the user creation
+                \Log::error('Failed to send welcome email: ' . $e->getMessage());
             }
 
             return response()->json([
+                'message' => 'User created successfully. Welcome email sent.',
                 'user' => $user,
-                'message' => 'User created successfully. A welcome email has been sent with login credentials.',
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -150,7 +148,6 @@ class UserController extends Controller
             // Only update password if provided
             if ($request->filled('password')) {
                 $data['password'] = Hash::make($request->password);
-                $data['password_changed_at'] = now();
             }
 
             $user->update($data);

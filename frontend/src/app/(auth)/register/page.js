@@ -10,7 +10,6 @@ import { useLanguageStore } from "@/store/useLanguageStore";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { Input } from "@/components/shared/inputs/Input";
 import { Select } from "@/components/shared/inputs/Select";
-import { DateInput } from "@/components/shared/inputs/DateInput";
 import { Textarea } from "@/components/shared/inputs/Textarea";
 import { Button } from "@/components/shared/inputs/Button";
 import {
@@ -32,6 +31,11 @@ export default function RegisterPage() {
   const registerUser = useAuthStore((s) => s.register);
   const user = useAuthStore((s) => s.user);
   const hydrateAuth = useAuthStore((s) => s.hydrateAuth);
+
+  // Date of birth states
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
   // Language and Currency stores
   const { languages, fetchLanguages } = useLanguageStore();
@@ -73,8 +77,14 @@ export default function RegisterPage() {
         password_confirmation: data.password_confirmation,
       };
 
+      // Construct date_of_birth from day, month, year
+      if (day && month && year) {
+        const paddedDay = day.padStart(2, "0");
+        const paddedMonth = month.padStart(2, "0");
+        submitData.date_of_birth = `${year}-${paddedMonth}-${paddedDay}`;
+      }
+
       // Only add optional fields if they have values
-      if (data.date_of_birth) submitData.date_of_birth = data.date_of_birth;
       if (data.bio?.trim()) submitData.bio = data.bio;
       if (data.language_id) submitData.language_id = parseInt(data.language_id);
       if (data.currency_id) submitData.currency_id = parseInt(data.currency_id);
@@ -181,23 +191,60 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-3">
-            <Controller
-              name="date_of_birth"
-              control={control}
-              render={({ field }) => (
-                <DateInput
-                  label="Date de naissance"
-                  icon={<FaCalendar />}
-                  placeholder="JJ/MM/AAAA"
-                  max={new Date().toISOString().split("T")[0]}
-                  error={
-                    errors.date_of_birth?.message ||
-                    serverErrors.date_of_birth?.[0]
-                  }
-                  {...field}
+            {/* Date of Birth Fields */}
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <FaCalendar className="inline mr-2 text-neutral-500" />
+                Date de naissance
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                <Select
+                  placeholder="Jour"
+                  value={day}
+                  onChange={(e) => setDay(e.target.value)}
+                  options={Array.from({ length: 31 }, (_, i) => ({
+                    value: String(i + 1),
+                    label: String(i + 1),
+                  }))}
                 />
+                <Select
+                  placeholder="Mois"
+                  value={month}
+                  onChange={(e) => setMonth(e.target.value)}
+                  options={[
+                    { value: "1", label: "Janvier" },
+                    { value: "2", label: "Février" },
+                    { value: "3", label: "Mars" },
+                    { value: "4", label: "Avril" },
+                    { value: "5", label: "Mai" },
+                    { value: "6", label: "Juin" },
+                    { value: "7", label: "Juillet" },
+                    { value: "8", label: "Août" },
+                    { value: "9", label: "Septembre" },
+                    { value: "10", label: "Octobre" },
+                    { value: "11", label: "Novembre" },
+                    { value: "12", label: "Décembre" },
+                  ]}
+                />
+                <Select
+                  placeholder="Année"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  options={Array.from(
+                    { length: new Date().getFullYear() - 1900 + 1 },
+                    (_, i) => ({
+                      value: String(new Date().getFullYear() - i),
+                      label: String(new Date().getFullYear() - i),
+                    })
+                  )}
+                />
+              </div>
+              {serverErrors.date_of_birth?.[0] && (
+                <p className="text-red-500 text-xs mt-1">
+                  {serverErrors.date_of_birth[0]}
+                </p>
               )}
-            />
+            </div>
 
             <Controller
               name="language_id"
