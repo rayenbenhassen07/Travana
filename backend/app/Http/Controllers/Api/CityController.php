@@ -15,7 +15,7 @@ class CityController extends Controller
     {
         $languageCode = $request->input('lang', 'en');
         
-        $cities = City::with(['translations.language', 'listings'])
+        $cities = City::with(['translations.language', 'properties'])
            
             ->get()
             ->map(function ($city) use ($languageCode) {
@@ -98,7 +98,7 @@ class CityController extends Controller
     public function show(Request $request, $id)
     {
         $languageCode = $request->input('lang', 'en');
-        $city = City::with(['translations.language', 'listings'])->findOrFail($id);
+        $city = City::with(['translations.language', 'properties'])->findOrFail($id);
         
         return response()->json($this->formatCityResponse($city, $languageCode));
     }
@@ -188,11 +188,11 @@ class CityController extends Controller
         try {
             $city = City::findOrFail($id);
             
-            // Check if city has listings
-            if ($city->listings()->count() > 0) {
+            // Check if city has properties
+            if ($city->properties()->count() > 0) {
                 return response()->json([
-                    'message' => 'Cannot delete city with existing listings',
-                    'error' => 'This city has ' . $city->listings()->count() . ' listing(s) associated with it.',
+                    'message' => 'Cannot delete city with existing properties',
+                    'error' => 'This city has ' . $city->properties()->count() . ' property(s) associated with it.',
                 ], 409);
             }
             
@@ -228,7 +228,7 @@ class CityController extends Controller
             'is_active' => $city->is_active,
             'name' => $city->getTranslatedName($languageCode) ?? $translations['en'] ?? null,
             'translations' => $translations,
-            'listings_count' => $city->listings->count(),
+            'properties_count' => $city->properties->count(),
             'created_at' => $city->created_at,
             'updated_at' => $city->updated_at,
         ];

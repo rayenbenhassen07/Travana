@@ -6,10 +6,17 @@ export const useFacilityStore = create((set, get) => ({
   isLoading: false,
   error: null,
 
-  fetchFacilities: async () => {
+  fetchFacilities: async (lang = "en", category = null) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get("/api/facilities");
+      const token = localStorage.getItem("token");
+      const params = { lang };
+      if (category) params.category = category;
+
+      const response = await axios.get("/api/facilities", {
+        params,
+        headers: { Authorization: `Bearer ${token}` },
+      });
       set({ facilities: response.data, isLoading: false });
     } catch (error) {
       set({
@@ -20,11 +27,31 @@ export const useFacilityStore = create((set, get) => ({
     }
   },
 
-  addFacility: async (formData) => {
+  getFacility: async (id, lang = "en") => {
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("/api/facilities", formData, {
+      const response = await axios.get(`/api/facilities/${id}`, {
+        params: { lang },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      set({ isLoading: false });
+      return response.data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.error || "Failed to fetch facility",
+        isLoading: false,
+      });
+      console.error("Failed to fetch facility:", error);
+      throw error;
+    }
+  },
+
+  addFacility: async (facilityData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post("/api/facilities", facilityData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -45,11 +72,11 @@ export const useFacilityStore = create((set, get) => ({
     }
   },
 
-  updateFacility: async (id, formData) => {
+  updateFacility: async (id, facilityData) => {
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post(`/api/facilities/${id}`, formData, {
+      const response = await axios.post(`/api/facilities/${id}`, facilityData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -77,9 +104,7 @@ export const useFacilityStore = create((set, get) => ({
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`/api/facilities/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       set((state) => ({
         facilities: state.facilities.filter((facility) => facility.id !== id),
@@ -93,5 +118,12 @@ export const useFacilityStore = create((set, get) => ({
       console.error("Failed to delete facility:", error);
       throw error;
     }
+  },
+
+  // Helper to filter facilities by category
+  getFacilitiesByCategory: (category) => {
+    return get().facilities.filter(
+      (facility) => facility.category === category
+    );
   },
 }));

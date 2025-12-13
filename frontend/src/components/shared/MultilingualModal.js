@@ -16,6 +16,7 @@ const MultilingualModal = ({
   initialTranslations = {},
   fields = [],
   children,
+  additionalFields,
   headerElement,
   requiredMessage = "Please add at least one valid translation",
 }) => {
@@ -31,7 +32,7 @@ const MultilingualModal = ({
     if (languages.length === 0) {
       fetchLanguages();
     }
-  }, [fetchLanguages, languages.length]);
+  }, [languages.length]);
 
   // Initialize modal state
   useEffect(() => {
@@ -67,7 +68,7 @@ const MultilingualModal = ({
         lastInitialTranslations.current = initialTranslations;
       }
     }
-  }, [isOpen, languages, currentLanguage, mode, item?.id, initialTranslations]);
+  }, [isOpen, languages.length, currentLanguage, mode, item?.id]);
 
   const handleLanguageChange = (langCode) => {
     const newLanguage = languages.find((lang) => lang.code === langCode);
@@ -250,6 +251,13 @@ const MultilingualModal = ({
             </div>
           ))}
         </div>
+
+        {/* Additional Fields */}
+        {additionalFields && (
+          <div className="space-y-4 pt-4 border-t border-neutral-200">
+            {additionalFields}
+          </div>
+        )}
 
         {/* Translation Status */}
         <div className="p-4 bg-neutral-50 rounded-xl">

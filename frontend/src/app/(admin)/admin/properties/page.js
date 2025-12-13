@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useListingStore } from "@/store/useListingStore";
-import { useCategoryStore } from "@/store/useCategoryStore";
+import { usePropertyStore } from "@/store/usePropertyStore";
+import { usePropertyTypeStore } from "@/store/usePropertyTypeStore";
 import { useFacilityStore } from "@/store/useFacilityStore";
 import { useAlertStore } from "@/store/useAlertStore";
 import { useUserStore } from "@/store/useUserStore";
@@ -11,7 +11,12 @@ import Pagination from "@/components/shared/Pagination";
 import Modal from "@/components/shared/Modal";
 import DeleteConfirmation from "@/components/shared/DeleteConfirmation";
 import ListingFormSteps from "@/components/(admin)/ListingFormSteps";
-import { Input, SelectWithSearch, Button } from "@/components/shared/inputs";
+import {
+  Input,
+  SelectWithSearch,
+  Select,
+  Button,
+} from "@/components/shared/inputs";
 import {
   FaPlus,
   FaEdit,
@@ -19,6 +24,7 @@ import {
   FaEye,
   FaHome,
   FaBed,
+  FaBath,
   FaUsers,
   FaDollarSign,
   FaMapMarkerAlt,
@@ -27,19 +33,19 @@ import {
 import { toast } from "sonner";
 import Image from "next/image";
 
-const ListingsPage = () => {
+const PropertiesPage = () => {
   const {
-    listings,
+    properties,
     isLoading,
     totalPages: storeTotalPages,
     currentPage: storeCurrentPage,
-    itemsPerPage,
-    fetchListings,
-    addListing,
-    updateListing,
-    deleteListing,
-  } = useListingStore();
-  const { categories, fetchCategories } = useCategoryStore();
+    perPage,
+    fetchProperties,
+    addProperty,
+    updateProperty,
+    deleteProperty,
+  } = usePropertyStore();
+  const { propertyTypes, fetchPropertyTypes } = usePropertyTypeStore();
   const { facilities, fetchFacilities } = useFacilityStore();
   const { alerts, fetchAlerts } = useAlertStore();
   const { users, fetchUsers } = useUserStore();
@@ -52,7 +58,7 @@ const ListingsPage = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   // Form states
-  const [selectedListing, setSelectedListing] = useState(null);
+  const [selectedProperty, setSelectedProperty] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pagination state
@@ -67,38 +73,55 @@ const ListingsPage = () => {
   // Search and filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCity, setFilterCity] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
+  const [filterPropertyType, setFilterPropertyType] = useState("");
+  const [filterListingType, setFilterListingType] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [filterMinPrice, setFilterMinPrice] = useState("");
   const [filterMaxPrice, setFilterMaxPrice] = useState("");
+  const [filterBedrooms, setFilterBedrooms] = useState("");
+  const [filterGuests, setFilterGuests] = useState("");
 
   // Fetch data on mount
   useEffect(() => {
-    fetchCategories();
+    fetchPropertyTypes();
     fetchFacilities();
     fetchAlerts();
     fetchUsers();
     fetchCities();
-  }, [fetchCategories, fetchFacilities, fetchAlerts, fetchUsers, fetchCities]);
+  }, [
+    fetchPropertyTypes,
+    fetchFacilities,
+    fetchAlerts,
+    fetchUsers,
+    fetchCities,
+  ]);
 
-  // Fetch listings when filters change
+  // Fetch properties when filters change
   useEffect(() => {
     const filters = {};
     if (searchQuery) filters.search = searchQuery;
     if (filterCity) filters.city_id = filterCity;
-    if (filterCategory) filters.category_id = filterCategory;
+    if (filterPropertyType) filters.property_type_id = filterPropertyType;
+    if (filterListingType) filters.listing_type = filterListingType;
+    if (filterStatus) filters.status = filterStatus;
     if (filterMinPrice) filters.min_price = filterMinPrice;
     if (filterMaxPrice) filters.max_price = filterMaxPrice;
+    if (filterBedrooms) filters.bedroom_count = filterBedrooms;
+    if (filterGuests) filters.guest_capacity = filterGuests;
 
-    fetchListings(currentPage, itemsPerPage, filters);
+    fetchProperties(filters);
   }, [
     currentPage,
     searchQuery,
     filterCity,
-    filterCategory,
+    filterPropertyType,
+    filterListingType,
+    filterStatus,
     filterMinPrice,
     filterMaxPrice,
-    fetchListings,
-    itemsPerPage,
+    filterBedrooms,
+    filterGuests,
+    fetchProperties,
   ]);
 
   // Handle sort
@@ -111,7 +134,7 @@ const ListingsPage = () => {
 
   // Sort data
   const sortedData = React.useMemo(() => {
-    let sorted = [...listings];
+    let sorted = [...properties];
 
     if (sortConfig.key) {
       sorted.sort((a, b) => {
@@ -119,9 +142,9 @@ const ListingsPage = () => {
         let bValue = b[sortConfig.key];
 
         // Handle nested properties
-        if (sortConfig.key === "category") {
-          aValue = a.category?.title || "";
-          bValue = b.category?.title || "";
+        if (sortConfig.key === "property_type") {
+          aValue = a.property_type?.name || "";
+          bValue = b.property_type?.name || "";
         } else if (sortConfig.key === "city") {
           aValue = a.city?.name || "";
           bValue = b.city?.name || "";
@@ -141,7 +164,7 @@ const ListingsPage = () => {
     }
 
     return sorted;
-  }, [listings, sortConfig]);
+  }, [properties, sortConfig]);
 
   // Handle add
   const handleAdd = () => {
@@ -149,38 +172,34 @@ const ListingsPage = () => {
   };
 
   // Handle edit
-  const handleEdit = (listing) => {
-    setSelectedListing(listing);
+  const handleEdit = (property) => {
+    setSelectedProperty(property);
     setIsEditModalOpen(true);
   };
 
   // Handle view
-  const handleView = (listing) => {
-    setSelectedListing(listing);
+  const handleView = (property) => {
+    setSelectedProperty(property);
     setIsViewModalOpen(true);
   };
 
   // Handle delete
-  const handleDelete = (listing) => {
-    setSelectedListing(listing);
+  const handleDelete = (property) => {
+    setSelectedProperty(property);
     setIsDeleteModalOpen(true);
   };
 
   // Confirm delete
   const confirmDelete = async () => {
-    if (!selectedListing) return;
+    if (!selectedProperty) return;
 
     try {
-      await deleteListing(selectedListing.id);
-      toast.success("Listing deleted successfully!");
+      await deleteProperty(selectedProperty.id);
+      toast.success("Property deleted successfully!");
       setIsDeleteModalOpen(false);
-      setSelectedListing(null);
+      setSelectedProperty(null);
     } catch (error) {
-      if (error.response?.status === 409) {
-        toast.error("Cannot delete listing with active reservations");
-      } else {
-        toast.error("Failed to delete listing");
-      }
+      toast.error("Failed to delete property");
     }
   };
 
@@ -189,17 +208,17 @@ const ListingsPage = () => {
     setIsSubmitting(true);
 
     try {
-      if (selectedListing) {
-        await updateListing(selectedListing.id, formData);
-        toast.success("Listing updated successfully!");
+      if (selectedProperty) {
+        await updateProperty(selectedProperty.id, formData);
+        toast.success("Property updated successfully!");
         setIsEditModalOpen(false);
       } else {
-        await addListing(formData);
-        toast.success("Listing created successfully!");
+        await addProperty(formData);
+        toast.success("Property created successfully!");
         setIsAddModalOpen(false);
       }
 
-      setSelectedListing(null);
+      setSelectedProperty(null);
     } catch (error) {
       if (error.response?.status === 422) {
         const errors = error.response.data.errors;
@@ -211,7 +230,7 @@ const ListingsPage = () => {
           toast.error("Validation failed. Please check your input.");
         }
       } else {
-        toast.error("Failed to save listing");
+        toast.error("Failed to save property");
       }
     } finally {
       setIsSubmitting(false);
@@ -222,16 +241,20 @@ const ListingsPage = () => {
   const handleCancel = () => {
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
-    setSelectedListing(null);
+    setSelectedProperty(null);
   };
 
   // Clear filters
   const clearFilters = () => {
     setSearchQuery("");
     setFilterCity("");
-    setFilterCategory("");
+    setFilterPropertyType("");
+    setFilterListingType("");
+    setFilterStatus("");
     setFilterMinPrice("");
     setFilterMaxPrice("");
+    setFilterBedrooms("");
+    setFilterGuests("");
     setCurrentPage(1);
   };
 
@@ -242,15 +265,15 @@ const ListingsPage = () => {
       key: "images",
       label: "Image",
       sortable: false,
-      render: (listing) => {
+      render: (property) => {
         const firstImage =
-          listing.images && listing.images.length > 0
-            ? listing.images[0]
+          property.images && property.images.length > 0
+            ? property.images[0]
             : null;
         return firstImage ? (
           <Image
             src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${firstImage}`}
-            alt={listing.title}
+            alt={property.name}
             width={64}
             height={64}
             className="w-16 h-16 object-cover rounded-xl"
@@ -262,71 +285,126 @@ const ListingsPage = () => {
         );
       },
     },
-    { key: "title", label: "Title", sortable: true },
     {
-      key: "category",
-      label: "Category",
+      key: "name",
+      label: "Name",
       sortable: true,
-      render: (listing) => listing.category?.title || "N/A",
+      render: (property) => (
+        <div>
+          <div className="font-medium">{property.name}</div>
+          <div className="text-xs text-neutral-500">{property.slug}</div>
+        </div>
+      ),
+    },
+    {
+      key: "property_type",
+      label: "Type",
+      sortable: true,
+      render: (property) => property.property_type?.name || "N/A",
     },
     {
       key: "city",
       label: "City",
       sortable: true,
-      render: (listing) => listing.city?.name || "N/A",
+      render: (property) => property.city?.name || "N/A",
+    },
+    {
+      key: "listing_type",
+      label: "Listing Type",
+      sortable: true,
+      render: (property) => (
+        <span
+          className={`px-2 py-1 rounded-lg text-xs font-semibold ${
+            property.listing_type === "sale"
+              ? "bg-green-100 text-green-700"
+              : property.listing_type === "rent"
+              ? "bg-blue-100 text-blue-700"
+              : "bg-purple-100 text-purple-700"
+          }`}
+        >
+          {property.listing_type?.toUpperCase()}
+        </span>
+      ),
     },
     {
       key: "price",
       label: "Price",
       sortable: true,
-      render: (listing) => `$${parseFloat(listing.price).toFixed(2)}`,
+      render: (property) => {
+        if (property.listing_type === "sale") {
+          return `$${parseFloat(property.sale_price || 0).toLocaleString()}`;
+        } else if (property.listing_type === "rent") {
+          return `$${parseFloat(property.rent_price_daily || 0).toFixed(
+            2
+          )}/day`;
+        } else {
+          return `$${parseFloat(
+            property.sale_price || 0
+          ).toLocaleString()} / $${parseFloat(
+            property.rent_price_daily || 0
+          ).toFixed(2)}/day`;
+        }
+      },
     },
     {
       key: "details",
       label: "Details",
       sortable: false,
-      render: (listing) => (
+      render: (property) => (
         <div className="flex gap-3 text-xs text-neutral-600">
-          <span className="flex items-center gap-1">
-            <FaBed /> {listing.room_count}
+          <span className="flex items-center gap-1" title="Bedrooms">
+            <FaBed /> {property.bedroom_count}
           </span>
-          <span className="flex items-center gap-1">
-            <FaUsers /> {listing.guest_count}
+          <span className="flex items-center gap-1" title="Bathrooms">
+            <FaBath /> {property.bathroom_count}
+          </span>
+          <span className="flex items-center gap-1" title="Guests">
+            <FaUsers /> {property.guest_capacity}
           </span>
         </div>
       ),
     },
     {
-      key: "reservations_count",
-      label: "Reservations",
+      key: "status",
+      label: "Status",
       sortable: true,
-      render: (listing) => (
-        <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-lg text-xs font-semibold">
-          {listing.reservations_count || 0}
+      render: (property) => (
+        <span
+          className={`px-2 py-1 rounded-lg text-xs font-semibold ${
+            property.status === "active"
+              ? "bg-green-100 text-green-700"
+              : property.status === "inactive"
+              ? "bg-gray-100 text-gray-700"
+              : property.status === "pending"
+              ? "bg-yellow-100 text-yellow-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {property.status?.toUpperCase()}
         </span>
       ),
     },
     {
       key: "actions",
       label: "Actions",
-      render: (listing) => (
+      render: (property) => (
         <div className="flex items-center gap-2">
           <button
-            onClick={() => handleView(listing)}
+            onClick={() => handleView(property)}
             className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-all cursor-pointer"
             title="View"
           >
             <FaEye size={16} />
           </button>
           <button
-            onClick={() => handleEdit(listing)}
+            onClick={() => handleEdit(property)}
             className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-all cursor-pointer"
             title="Edit"
           >
             <FaEdit size={16} />
           </button>
           <button
-            onClick={() => handleDelete(listing)}
+            onClick={() => handleDelete(property)}
             className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-all cursor-pointer"
             title="Delete"
           >
@@ -343,20 +421,20 @@ const ListingsPage = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-neutral-800 flex items-center gap-3">
-            Listings Management
+            Properties Management
           </h1>
           <p className="text-neutral-600 mt-1">Manage property listings</p>
         </div>
         <Button variant="primary" icon={<FaPlus />} onClick={handleAdd}>
-          Add Listing
+          Add Property
         </Button>
       </div>
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-xl shadow-sm mb-6 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
-            placeholder="Search by title, description, address..."
+            placeholder="Search by name, address..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="md:col-span-2"
@@ -374,18 +452,63 @@ const ListingsPage = () => {
           />
 
           <SelectWithSearch
-            placeholder="Select Category"
-            name="filterCategory"
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            options={categories.map((cat) => ({
-              value: cat.id,
-              label: cat.title,
+            placeholder="Property Type"
+            name="filterPropertyType"
+            value={filterPropertyType}
+            onChange={(e) => setFilterPropertyType(e.target.value)}
+            options={propertyTypes.map((type) => ({
+              value: type.id,
+              label: type.name,
             }))}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <Select
+            placeholder="Listing Type"
+            name="filterListingType"
+            value={filterListingType}
+            onChange={(e) => setFilterListingType(e.target.value)}
+            options={[
+              { value: "", label: "All Types" },
+              { value: "sale", label: "For Sale" },
+              { value: "rent", label: "For Rent" },
+              { value: "both", label: "Both" },
+            ]}
+          />
+
+          <Select
+            placeholder="Status"
+            name="filterStatus"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            options={[
+              { value: "", label: "All Statuses" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+              { value: "pending", label: "Pending" },
+              { value: "sold", label: "Sold" },
+            ]}
+          />
+
+          <Input
+            type="number"
+            placeholder="Min Bedrooms"
+            value={filterBedrooms}
+            onChange={(e) => setFilterBedrooms(e.target.value)}
+            min="0"
+          />
+
+          <Input
+            type="number"
+            placeholder="Max Guests"
+            value={filterGuests}
+            onChange={(e) => setFilterGuests(e.target.value)}
+            min="0"
           />
 
           <Button variant="secondary" onClick={clearFilters}>
-            Clear Filters
+            Clear All
           </Button>
         </div>
 
@@ -408,25 +531,6 @@ const ListingsPage = () => {
             step="0.01"
           />
         </div>
-
-        {(searchQuery ||
-          filterCity ||
-          filterCategory ||
-          filterMinPrice ||
-          filterMaxPrice) && (
-          <div className="text-sm text-neutral-600">
-            <span className="font-semibold">Active filters:</span>{" "}
-            {searchQuery && `Search: "${searchQuery}"`}
-            {filterCity &&
-              ` | City: ${cities.find((c) => c.id == filterCity)?.name}`}
-            {filterCategory &&
-              ` | Category: ${
-                categories.find((c) => c.id == filterCategory)?.title
-              }`}
-            {filterMinPrice && ` | Min: $${filterMinPrice}`}
-            {filterMaxPrice && ` | Max: $${filterMaxPrice}`}
-          </div>
-        )}
       </div>
 
       {/* Table */}
@@ -455,13 +559,13 @@ const ListingsPage = () => {
       <Modal
         isOpen={isAddModalOpen}
         onClose={handleCancel}
-        title="Add New Listing"
+        title="Add New Property"
         size="large"
       >
         <ListingFormSteps
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          categories={categories}
+          categories={propertyTypes}
           cities={cities}
           users={users}
           facilities={facilities}
@@ -474,14 +578,14 @@ const ListingsPage = () => {
       <Modal
         isOpen={isEditModalOpen}
         onClose={handleCancel}
-        title="Edit Listing"
+        title="Edit Property"
         size="large"
       >
         <ListingFormSteps
-          initialData={selectedListing}
+          initialData={selectedProperty}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          categories={categories}
+          categories={propertyTypes}
           cities={cities}
           users={users}
           facilities={facilities}
@@ -494,21 +598,21 @@ const ListingsPage = () => {
       <Modal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
-        title="Listing Details"
+        title="Property Details"
         size="large"
       >
-        {selectedListing && (
+        {selectedProperty && (
           <div className="space-y-6">
             {/* Images */}
-            {selectedListing.images && selectedListing.images.length > 0 && (
+            {selectedProperty.images && selectedProperty.images.length > 0 && (
               <div>
                 <h3 className="font-semibold text-neutral-800 mb-3">Images</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {selectedListing.images.map((image, index) => (
+                  {selectedProperty.images.map((image, index) => (
                     <img
                       key={index}
                       src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${image}`}
-                      alt={`${selectedListing.title} - ${index + 1}`}
+                      alt={`${selectedProperty.name} - ${index + 1}`}
                       className="w-full h-40 object-cover rounded-xl border-2 border-neutral-200"
                     />
                   ))}
@@ -520,17 +624,17 @@ const ListingsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h4 className="text-sm font-semibold text-neutral-600 mb-1">
-                  Title
+                  Name
                 </h4>
-                <p className="text-neutral-800">{selectedListing.title}</p>
+                <p className="text-neutral-800">{selectedProperty.name}</p>
               </div>
 
               <div>
                 <h4 className="text-sm font-semibold text-neutral-600 mb-1">
-                  Category
+                  Property Type
                 </h4>
                 <p className="text-neutral-800">
-                  {selectedListing.category?.title || "N/A"}
+                  {selectedProperty.property_type?.name || "N/A"}
                 </p>
               </div>
 
@@ -539,7 +643,7 @@ const ListingsPage = () => {
                   City
                 </h4>
                 <p className="text-neutral-800">
-                  {selectedListing.city?.name || "N/A"}
+                  {selectedProperty.city?.name || "N/A"}
                 </p>
               </div>
 
@@ -548,16 +652,25 @@ const ListingsPage = () => {
                   Owner
                 </h4>
                 <p className="text-neutral-800">
-                  {selectedListing.user?.name || "N/A"}
+                  {selectedProperty.user?.name || "N/A"}
                 </p>
               </div>
 
               <div>
                 <h4 className="text-sm font-semibold text-neutral-600 mb-1">
-                  Price
+                  Listing Type
                 </h4>
-                <p className="font-bold text-primary-600">
-                  ${parseFloat(selectedListing.price).toFixed(2)} / night
+                <p className="text-neutral-800 capitalize">
+                  {selectedProperty.listing_type}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-neutral-600 mb-1">
+                  Status
+                </h4>
+                <p className="text-neutral-800 capitalize">
+                  {selectedProperty.status}
                 </p>
               </div>
 
@@ -565,26 +678,83 @@ const ListingsPage = () => {
                 <h4 className="text-sm font-semibold text-neutral-600 mb-1">
                   Address
                 </h4>
-                <p className="text-neutral-800">{selectedListing.adresse}</p>
+                <p className="text-neutral-800">{selectedProperty.address}</p>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-neutral-600 mb-1">
+                  Size
+                </h4>
+                <p className="text-neutral-800">
+                  {selectedProperty.size_sqm} m²
+                </p>
               </div>
             </div>
 
-            {/* Descriptions */}
+            {/* Pricing */}
             <div>
-              <h4 className="text-sm font-semibold text-neutral-600 mb-1">
-                Short Description
-              </h4>
-              <p className="text-neutral-800">
-                {selectedListing.short_description || "N/A"}
-              </p>
+              <h3 className="font-semibold text-neutral-800 mb-3">Pricing</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {selectedProperty.listing_type !== "rent" && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-neutral-600 mb-1">
+                      Sale Price
+                    </h4>
+                    <p className="font-bold text-primary-600">
+                      $
+                      {parseFloat(
+                        selectedProperty.sale_price || 0
+                      ).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+                {selectedProperty.listing_type !== "sale" && (
+                  <>
+                    <div>
+                      <h4 className="text-sm font-semibold text-neutral-600 mb-1">
+                        Daily Rate
+                      </h4>
+                      <p className="font-bold text-primary-600">
+                        $
+                        {parseFloat(
+                          selectedProperty.rent_price_daily || 0
+                        ).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-neutral-600 mb-1">
+                        Weekly Rate
+                      </h4>
+                      <p className="font-bold text-primary-600">
+                        $
+                        {parseFloat(
+                          selectedProperty.rent_price_weekly || 0
+                        ).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-neutral-600 mb-1">
+                        Monthly Rate
+                      </h4>
+                      <p className="font-bold text-primary-600">
+                        $
+                        {parseFloat(
+                          selectedProperty.rent_price_monthly || 0
+                        ).toFixed(2)}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
+            {/* Description */}
             <div>
               <h4 className="text-sm font-semibold text-neutral-600 mb-1">
-                Full Description
+                Description
               </h4>
               <p className="text-neutral-800">
-                {selectedListing.long_description || "N/A"}
+                {selectedProperty.description || "N/A"}
               </p>
             </div>
 
@@ -592,67 +762,67 @@ const ListingsPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-neutral-50 p-4 rounded-xl">
               <div className="text-center">
                 <FaBed className="text-primary-500 text-2xl mx-auto mb-2" />
-                <p className="text-xs text-neutral-600">Rooms</p>
+                <p className="text-xs text-neutral-600">Bedrooms</p>
                 <p className="text-lg font-bold text-neutral-800">
-                  {selectedListing.room_count}
+                  {selectedProperty.bedroom_count}
                 </p>
               </div>
               <div className="text-center">
-                <FaHome className="text-primary-500 text-2xl mx-auto mb-2" />
+                <FaBath className="text-primary-500 text-2xl mx-auto mb-2" />
                 <p className="text-xs text-neutral-600">Bathrooms</p>
                 <p className="text-lg font-bold text-neutral-800">
-                  {selectedListing.bathroom_count}
+                  {selectedProperty.bathroom_count}
                 </p>
               </div>
               <div className="text-center">
                 <FaUsers className="text-primary-500 text-2xl mx-auto mb-2" />
                 <p className="text-xs text-neutral-600">Guests</p>
                 <p className="text-lg font-bold text-neutral-800">
-                  {selectedListing.guest_count}
+                  {selectedProperty.guest_capacity}
                 </p>
               </div>
               <div className="text-center">
                 <FaBed className="text-primary-500 text-2xl mx-auto mb-2" />
                 <p className="text-xs text-neutral-600">Beds</p>
                 <p className="text-lg font-bold text-neutral-800">
-                  {selectedListing.bed_count}
+                  {selectedProperty.bed_count}
                 </p>
               </div>
             </div>
 
             {/* Facilities */}
-            {selectedListing.facilities &&
-              selectedListing.facilities.length > 0 && (
+            {selectedProperty.facilities &&
+              selectedProperty.facilities.length > 0 && (
                 <div>
                   <h4 className="text-sm font-semibold text-neutral-600 mb-2">
                     Facilities
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedListing.facilities.map((facility) => (
+                    {selectedProperty.facilities.map((facility) => (
                       <span
                         key={facility.id}
                         className="px-3 py-1 bg-primary-100 text-primary-700 rounded-lg text-sm"
                       >
-                        {facility.title}
+                        {facility.name}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
 
-            {/* Special Features */}
-            {selectedListing.alerts && selectedListing.alerts.length > 0 && (
+            {/* House Rules / Alerts */}
+            {selectedProperty.alerts && selectedProperty.alerts.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-neutral-600 mb-2">
-                  Special Features
+                  House Rules
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedListing.alerts.map((alert) => (
+                  {selectedProperty.alerts.map((alert) => (
                     <span
                       key={alert.id}
                       className="px-3 py-1 bg-neutral-100 text-neutral-700 rounded-lg text-sm"
                     >
-                      {alert.title}
+                      {alert.name}
                     </span>
                   ))}
                 </div>
@@ -660,14 +830,14 @@ const ListingsPage = () => {
             )}
 
             {/* Location */}
-            {(selectedListing.lat || selectedListing.long) && (
+            {(selectedProperty.latitude || selectedProperty.longitude) && (
               <div>
                 <h4 className="text-sm font-semibold text-neutral-600 mb-2">
                   Coordinates
                 </h4>
                 <p className="text-neutral-800">
-                  Latitude: {selectedListing.lat || "N/A"}, Longitude:{" "}
-                  {selectedListing.long || "N/A"}
+                  Latitude: {selectedProperty.latitude || "N/A"}, Longitude:{" "}
+                  {selectedProperty.longitude || "N/A"}
                 </p>
               </div>
             )}
@@ -680,15 +850,10 @@ const ListingsPage = () => {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
-        itemName={selectedListing?.title}
-        warningMessage={
-          selectedListing?.reservations_count > 0
-            ? `This listing has ${selectedListing.reservations_count} reservation(s). Deleting it will affect these reservations.`
-            : null
-        }
+        itemName={selectedProperty?.name}
       />
     </div>
   );
 };
 
-export default ListingsPage;
+export default PropertiesPage;

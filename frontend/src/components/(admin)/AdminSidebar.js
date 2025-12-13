@@ -52,30 +52,35 @@ const AdminSidebar = ({
       badge: "12",
     },
     {
-      title: "Listings",
+      title: "Properties",
       icon: <FaHotel />,
-      href: "/admin/listings",
+      href: "/admin/properties",
       hasSubmenu: true,
       submenu: [
         {
           title: "Calendar",
           icon: <FaCalendarAlt />,
-          href: "/admin/listings/calendar",
+          href: "/admin/properties/calendar",
         },
         {
-          title: "Categories",
+          title: "Property Types",
           icon: <MdCategory />,
-          href: "/admin/listings/categories",
+          href: "/admin/properties/property-types",
         },
         {
           title: "Facilities",
           icon: <FaThList />,
-          href: "/admin/listings/facilities",
+          href: "/admin/properties/facilities",
+        },
+        {
+          title: "Facility Categories",
+          icon: <FaThList />,
+          href: "/admin/properties/facility-categories",
         },
         {
           title: "Alerts",
           icon: <FaBell />,
-          href: "/admin/listings/alerts",
+          href: "/admin/properties/alerts",
         },
       ],
     },

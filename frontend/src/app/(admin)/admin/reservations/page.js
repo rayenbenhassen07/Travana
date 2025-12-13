@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useReservationStore } from "@/store/useReservationStore";
+// import { useReservationStore } from "@/store/useReservationStore";
 import { useUserStore } from "@/store/useUserStore";
 import Table from "@/components/shared/Table";
 import Pagination from "@/components/shared/Pagination";
@@ -82,7 +82,7 @@ const ReservationsPage = () => {
     fetchReservations();
     fetchUsers();
     fetchListings();
-  }, [fetchReservations, fetchUsers]);
+  }, []);
 
   // Fetch listings
   const fetchListings = async () => {

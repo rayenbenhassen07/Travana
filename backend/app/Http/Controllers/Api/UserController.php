@@ -16,7 +16,7 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::with(['listings', 'listingReservations'])->get();
+            $users = User::with(['properties', 'listingReservations'])->get();
             
             // Add needs_password_change flag
             $users->each(function ($user) {
@@ -98,7 +98,7 @@ class UserController extends Controller
     public function show($id)
     {
         try {
-            $user = User::with(['listings', 'listingReservations'])->findOrFail($id);
+            $user = User::with(['properties', 'listingReservations'])->findOrFail($id);
             $user->needs_password_change = $user->needsPasswordChange();
             return response()->json($user);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -185,14 +185,14 @@ class UserController extends Controller
                 ], 403);
             }
             
-            // Check if user has listings or reservations
-            $listingsCount = $user->listings()->count();
+            // Check if user has properties or reservations
+            $propertiesCount = $user->properties()->count();
             $reservationsCount = $user->listingReservations()->count();
             
-            if ($listingsCount > 0 || $reservationsCount > 0) {
+            if ($propertiesCount > 0 || $reservationsCount > 0) {
                 return response()->json([
                     'message' => 'Cannot delete user with existing data',
-                    'error' => "This user has {$listingsCount} listing(s) and {$reservationsCount} reservation(s) associated with it.",
+                    'error' => "This user has {$propertiesCount} property(s) and {$reservationsCount} reservation(s) associated with it.",
                 ], 409);
             }
             

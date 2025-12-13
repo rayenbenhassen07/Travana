@@ -70,6 +70,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Blog::class, 'author_id');
     }
 
+    public function properties()
+    {
+        return $this->hasMany(Property::class);
+    }
+
+    public function propertyFavorites()
+    {
+        return $this->hasMany(PropertyFavorite::class);
+    }
+
     public function preferredLanguage()
     {
         return $this->belongsTo(Language::class, 'language_id');

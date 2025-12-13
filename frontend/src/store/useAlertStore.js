@@ -6,10 +6,16 @@ export const useAlertStore = create((set, get) => ({
   isLoading: false,
   error: null,
 
-  fetchAlerts: async () => {
+  fetchAlerts: async (lang = "en") => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get("/api/alerts");
+      const token = localStorage.getItem("token");
+      const params = { lang };
+
+      const response = await axios.get("/api/alerts", {
+        params,
+        headers: { Authorization: `Bearer ${token}` },
+      });
       set({ alerts: response.data, isLoading: false });
     } catch (error) {
       set({
@@ -20,11 +26,31 @@ export const useAlertStore = create((set, get) => ({
     }
   },
 
-  addAlert: async (formData) => {
+  getAlert: async (id, lang = "en") => {
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("/api/alerts", formData, {
+      const response = await axios.get(`/api/alerts/${id}`, {
+        params: { lang },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      set({ isLoading: false });
+      return response.data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.error || "Failed to fetch alert",
+        isLoading: false,
+      });
+      console.error("Failed to fetch alert:", error);
+      throw error;
+    }
+  },
+
+  addAlert: async (alertData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post("/api/alerts", alertData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -45,11 +71,11 @@ export const useAlertStore = create((set, get) => ({
     }
   },
 
-  updateAlert: async (id, formData) => {
+  updateAlert: async (id, alertData) => {
     set({ isLoading: true, error: null });
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post(`/api/alerts/${id}`, formData, {
+      const response = await axios.post(`/api/alerts/${id}`, alertData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -77,9 +103,7 @@ export const useAlertStore = create((set, get) => ({
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`/api/alerts/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       set((state) => ({
         alerts: state.alerts.filter((alert) => alert.id !== id),

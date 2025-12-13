@@ -17,11 +17,6 @@ return new class extends Migration
                 $table->dropColumn('type');
             }
             
-            // Drop 'sex' column if it exists (from old schema)
-            if (Schema::hasColumn('users', 'sex')) {
-                $table->dropColumn('sex');
-            }
-            
   
             $table->date('date_of_birth')->nullable()->after('phone');
             $table->string('profile_photo')->nullable()->after('date_of_birth');

@@ -71,20 +71,20 @@ const ListingFormSteps = ({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        title: initialData.title || "",
+        title: initialData.name || "",
         short_description: initialData.short_description || "",
         long_description: initialData.long_description || "",
-        category_id: initialData.category_id || "",
-        user_id: initialData.user_id || "",
+        category_id: initialData.property_type?.id || "",
+        user_id: initialData.user?.id || "",
         room_count: initialData.room_count || 1,
         bathroom_count: initialData.bathroom_count || 1,
-        guest_count: initialData.guest_count || 1,
+        guest_count: initialData.guest_capacity || 1,
         bed_count: initialData.bed_count || 1,
-        city_id: initialData.city_id || "",
-        adresse: initialData.adresse || "",
-        lat: initialData.lat || "",
-        long: initialData.long || "",
-        price: initialData.price || "",
+        city_id: initialData.city?.id || "",
+        adresse: initialData.address || "",
+        lat: initialData.latitude || "",
+        long: initialData.longitude || "",
+        price: initialData.rent_price_daily || "",
         facilities: initialData.facilities?.map((f) => f.id) || [],
         alerts: initialData.alerts?.map((a) => a.id) || [],
         images: [],
@@ -282,7 +282,7 @@ const ListingFormSteps = ({
                 onChange={handleInputChange}
                 options={categories.map((cat) => ({
                   value: cat.id,
-                  label: cat.title,
+                  label: cat.name,
                 }))}
                 error={formErrors.category_id}
                 required
@@ -496,7 +496,7 @@ const ListingFormSteps = ({
               onChange={handleInputChange}
               options={facilities.map((facility) => ({
                 value: facility.id,
-                label: facility.title,
+                label: facility.name,
               }))}
               placeholder="Select facilities"
               maxDisplay={3}
@@ -509,7 +509,7 @@ const ListingFormSteps = ({
               onChange={handleInputChange}
               options={alerts.map((alert) => ({
                 value: alert.id,
-                label: alert.title,
+                label: alert.name,
               }))}
               placeholder="Select special features"
               maxDisplay={3}
@@ -620,7 +620,7 @@ const ListingFormSteps = ({
               onClick={handleSubmit}
               isLoading={isSubmitting}
             >
-              {initialData ? "Update Listing" : "Create Listing"}
+              {initialData ? "Update Property" : "Create Property"}
             </Button>
           )}
         </div>
