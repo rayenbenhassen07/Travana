@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Password;
 
 class NewUserWelcome extends Mailable
 {
@@ -15,6 +16,7 @@ class NewUserWelcome extends Mailable
 
     public $user;
     public $temporaryPassword;
+    public $resetUrl;
 
     /**
      * Create a new message instance.
@@ -23,6 +25,14 @@ class NewUserWelcome extends Mailable
     {
         $this->user = $user;
         $this->temporaryPassword = $temporaryPassword;
+        
+        // Generate password reset token
+        $token = Password::broker()->createToken($user);
+        
+        // Create the reset URL - matching frontend route structure
+        $this->resetUrl = config('app.frontend_url', 'http://localhost:3000') 
+            . '/password-reset/' . $token 
+            . '?email=' . urlencode($user->email);
     }
 
     /**
@@ -42,6 +52,7 @@ class NewUserWelcome extends Mailable
     {
         return new Content(
             view: 'emails.new-user-welcome',
+            text: 'emails.new-user-welcome-plain',
         );
     }
 

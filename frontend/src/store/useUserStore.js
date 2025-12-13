@@ -25,8 +25,10 @@ export const useUserStore = create((set) => ({
       const response = await axios.post("/api/users", userData, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      // Handle both response formats: { user: {...} } or direct user object
+      const newUser = response.data.user || response.data;
       set((state) => ({
-        users: [...state.users, response.data],
+        users: [...state.users, newUser],
         isLoading: false,
       }));
     } catch (error) {
